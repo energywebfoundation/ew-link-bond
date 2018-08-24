@@ -1,7 +1,8 @@
+"""
+https://pypi.org/
+https://pypi.org/classifiers/
+"""
 import setuptools
-
-with open("README.md", "r") as fh:
-    long_description = fh.read()
 
 setuptools.setup(
     name="ew-link-bond",
@@ -9,7 +10,7 @@ setuptools.setup(
     author="Jean Paul Depraz",
     author_email="paul.depraz@energyweb.org",
     description="Energy data interface for blockchain smart contracts",
-    long_description=long_description,
+    long_description="Please visit https://github.com/energywebfoundation/ew-link-bond .",
     long_description_content_type="text/markdown",
     url="https://github.com/energywebfoundation/ew-link-bond",
     packages=setuptools.find_packages(),
