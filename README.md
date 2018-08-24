@@ -1,5 +1,8 @@
 # Bond: An energy data interface for blockchain smart contracts
 
+[![](https://img.shields.io/pypi/v/ew-link-bond.svg)](https://warehouse.python.org/project/ew-link-bond/) 
+[![](https://img.shields.io/pypi/l/ew-link-bond.svg)](https://warehouse.python.org/project/ew-link-bond/) 
+
 Library designed to support the creation of interfaces for reading, parsing and writing energy industry related data to and from the blockchain.
 
 The main component of the `bond` code is the [core](https://github.com/energywebfoundation/ewf-link-bond/tree/master/core) library, organized into `abstract`, `input` and `output`. Abstract defines all classes and interfaces to be inherited and implemented by input and output classes. As the names imply the software consists of loading and reading one or many input modules and write formatted data to output modules.
@@ -7,7 +10,19 @@ The main component of the `bond` code is the [core](https://github.com/energyweb
 Further development and contribution enhancing generalization of the tool is much welcome, please contribute with issues and pull requests. :)
 
 ### Configuration
+
 Bond needs a `json` file to know which modules to load and read the modules configuration. Designed with reflection in mind, the configuration file needs to have a list of `consumption` or `production` and a `client`. These keywords are objects describing python-like `module` path, case-sensitive `class_name` and a dictionary of `class_parameters` that are required in the chosen class constructor.
 
 ### Core Classes
 ![Core Library Class Diagram](https://github.com/energywebfoundation/ewf-link-bond/blob/master/docs/media/core-class-diagram.png)
+
+### Suported Energy Assets
+
+#### Available
+- [Verbund Eumel v1.0](https://www.verbund.com/de-at/privatkunden/themenwelten/wiki/smart-meter) - Smart meter still not available on the market.
+- [Wattime CO2 Emission API v1.0](https://api.watttime.org/docs/)
+- [Wattime CO2 Emission API v2.0](https://api.watttime.org/docs/)
+
+#### Future
+- [Gridx Gridbox](https://gridx.de/produkt/gridbox/)
+- [Loxone Miniserver](https://www.loxone.com/enen/products/miniserver-extensions/)

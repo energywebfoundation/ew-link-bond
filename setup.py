@@ -11,8 +11,8 @@ setuptools.setup(
     author_email="paul.depraz@energyweb.org",
     description="Energy data interface for blockchain smart contracts",
     long_description="Library designed to support the creation of interfaces for reading, parsing and writing energy \
-    industry related data to and from the blockchain. Please visit https://github.com/energywebfoundation/ew-link-bond \
-    for more.",
+    industry related data to and from the blockchain. \n\
+    Please visit https://github.com/energywebfoundation/ew-link-bond for more.",
     long_description_content_type="text/markdown",
     url="https://github.com/energywebfoundation/ew-link-bond",
     packages=setuptools.find_packages(),
