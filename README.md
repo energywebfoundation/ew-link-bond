@@ -1,6 +1,6 @@
 # Bond: An energy data interface for blockchain smart contracts
 
-Service designed to be a general interface for reading, parsing and writing energy industry related data to and from the blockchain.
+Library designed to support the creation of interfaces for reading, parsing and writing energy industry related data to and from the blockchain.
 
 The main component of the `bond` code is the [core](https://github.com/energywebfoundation/ewf-link-bond/tree/master/core) library, organized into `abstract`, `input` and `output`. Abstract defines all classes and interfaces to be inherited and implemented by input and output classes. As the names imply the software consists of loading and reading one or many input modules and write formatted data to output modules.
 
