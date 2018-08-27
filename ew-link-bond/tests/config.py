@@ -1,17 +1,20 @@
-import os
-import json
-import time
-import sched
-import logging
-import colorlog
+"""
+
+"""
 import datetime
+import json
+import logging
+import os
+import sched
+import time
 
-import output.origin.dao as dao
+import colorlog
+
 import core.config as config_parser
-
+import output.origin.dao as dao
 from core.input import ExternalDataSource, ExternalData
-from output.origin.dao import ProductionFileData, ProducedChainData, ConsumptionFileData, ConsumedChainData
 from input.eumel import DataLoggerV1, DataLoggerV2d1d1
+from output.origin.dao import ProductionFileData, ProducedChainData, ConsumptionFileData, ConsumedChainData
 
 PERSISTENCE = './tobalaba/'
 
@@ -59,16 +62,17 @@ def print_config(config_file: str = None):
     logger.debug('[CONF] path to logs: {}'.format(PERSISTENCE))
 
     if config_file:
-        configuration = config_parser.parse(json.load(open(config_file)))
+        user_config = config_parser.parse(json.load(open(config_file)))
     else:
-        configuration = config_parser.parse(json.loads(os.environ['config']))
-    if configuration.production is not None:
-        [logger.debug(prod.format(item.energy.__class__.__name__, item.carbon_emission.__class__.__name__))
-         for item in configuration.production]
-    if configuration.consumption is not None:
-        [logger.debug(coms.format(item.energy.__class__.__name__)) for item in configuration.consumption]
+        user_config = config_parser.parse(json.loads(os.environ['config']))
 
-    return configuration
+    if user_config.production is not None:
+        [logger.debug(prod.format(item.energy.__class__.__name__, item.carbon_emission.__class__.__name__))
+         for item in user_config.production]
+    if user_config.consumption is not None:
+        [logger.debug(coms.format(item.energy.__class__.__name__)) for item in user_config.consumption]
+
+    return user_config
 
 
 def _produce(chain_file, config, item) -> bool:
@@ -93,7 +97,8 @@ def _produce(chain_file, config, item) -> bool:
         return False
 
 
-def print_production_results(config: config_parser.Configuration, item: config_parser.InputConfiguration, chain_file: str):
+def print_production_results(config: config_parser.Configuration, item: config_parser.ProducerConfiguration,
+                             chain_file: str):
     for trial in range(3):
         if _produce(chain_file, config, item):
             return
@@ -102,7 +107,7 @@ def print_production_results(config: config_parser.Configuration, item: config_p
             logger.critical("[COMS][FAIL] meter: {} - Check error.log".format(item.energy.__class__.__name__))
 
 
-def _consume(chain_file, config, item):
+def _consume(chain_file, config: config_parser.ConsumerConfiguration, item):
     try:
         consumption_local_chain = dao.DiskStorage(chain_file, PERSISTENCE)
         last_local_chain_hash = consumption_local_chain.get_last_hash()
@@ -124,7 +129,8 @@ def _consume(chain_file, config, item):
         return False
 
 
-def print_consumption_results(config: config_parser.Configuration, item: config_parser.InputConfiguration, chain_file: str):
+def print_consumption_results(config: config_parser.Configuration, item: config_parser.ConsumerConfiguration,
+                              chain_file: str):
     for trial in range(3):
         if _consume(chain_file, config, item):
             return
@@ -176,7 +182,8 @@ def __fetch_input_data(external_data_source: ExternalDataSource):
         return None
 
 
-def read_production_data(config: config_parser.InputConfiguration, last_hash: str, last_state: list) -> ProductionFileData:
+def read_production_data(config: config_parser.ProducerConfiguration, last_hash: str,
+                         last_state: list) -> ProductionFileData:
     """
     Reach for external data sources and return parsed consumed data
     :param last_hash: Last file hash
@@ -211,7 +218,8 @@ def read_production_data(config: config_parser.InputConfiguration, last_hash: st
     return input_data
 
 
-def read_consumption_data(config: config_parser.InputConfiguration, last_hash: str, last_state: list) -> ConsumptionFileData:
+def read_consumption_data(config: config_parser.ConsumerConfiguration, last_hash: str,
+                          last_state: list) -> ConsumptionFileData:
     """
     Reach for external data sources and return parsed consumed data
     :param last_hash: Last file hash

@@ -1,73 +1,101 @@
-import json
 import importlib
 
-from core import JSONAble
 from core.input import EnergyDataSource, CarbonEmissionDataSource
 from core.output import SmartContractClient
 
 
-class Credentials(JSONAble):
-    def __init__(self, contract_address: str, wallet_add: str, wallet_pwd: str):
-        self.contract_address = contract_address
-        self.wallet_add = wallet_add
-        self.wallet_pwd = wallet_pwd
+class ConsumerConfiguration:
+    """
+    Represents one user-provided energy consuming asset
+    """
 
-
-class InputConfiguration:
-
-    def __init__(self, energy: EnergyDataSource, credentials: Credentials, carbon_emission: CarbonEmissionDataSource, name: str):
-        if not isinstance(energy, EnergyDataSource):
+    def __init__(self, name: str, energy_meter: EnergyDataSource, smart_contract: SmartContractClient):
+        if not isinstance(energy_meter, EnergyDataSource):
             raise AttributeError
-        if not isinstance(credentials, Credentials):
+        if len(name) < 2:
             raise AttributeError
+        self.name = name
+        self.energy = energy_meter
+        self.smart_contract = smart_contract
+
+
+class ProducerConfiguration(ConsumerConfiguration):
+    """
+    Represents one user-provided energy producing asset
+    """
+
+    def __init__(self, name: str, energy_meter: EnergyDataSource, carbon_emission: CarbonEmissionDataSource, smart_contract: SmartContractClient):
         if carbon_emission is not None and not isinstance(carbon_emission, CarbonEmissionDataSource):
             raise AttributeError
-        self.energy = energy
-        self.origin = credentials
         self.carbon_emission = carbon_emission
-        self.name = name
+        super().__init__(name=name, energy_meter=energy_meter, smart_contract=smart_contract)
 
 
 class Configuration:
+    """
+    Represents the user-provided parsed configuration json
+    """
 
-    def __init__(self, production: [InputConfiguration], consumption: [InputConfiguration], client: SmartContractClient):
-        self.production = production
+    def __init__(self, consumption: [ConsumerConfiguration], production: [ProducerConfiguration]):
+        [self.__check(item, ConsumerConfiguration) for item in consumption]
+        [self.__check(item, ProducerConfiguration) for item in production]
         self.consumption = consumption
-        self.client = client
-
-    def __check(self, production, consumption, client):
-        [self.__check_input_config(item) for item in production]
-        [self.__check_input_config(item) for item in consumption]
-        if not issubclass(client.__class__, SmartContractClient):
-            raise AttributeError('Must have strictly one blockchain client.')
+        self.production = production
 
     @staticmethod
-    def __check_input_config(obj):
-        if not isinstance(obj, InputConfiguration):
-            raise AttributeError('Configuration file contain errors.')
+    def __check(item, cls):
+        if not isinstance(item, cls):
+            raise ConfigurationFileError
 
 
-def __get_input_configuration(configuration: dict) -> InputConfiguration:
-    # TODO: Conform to new config file
-    emission = 'carbonemission' in configuration
-    instance = {
-        "energy": __get_class_instance(configuration['energy']),
-        "carbon_emission": __get_class_instance(configuration['carbonemission']) if emission else None,
-        "origin": __get_class_instance(configuration['origin']),
-        "name": configuration['name']
+class ConfigurationFileError(Exception):
+    """
+    Custom Exception to deal with non-conforming configuration files
+    """
+
+    def __init__(self):
+        super().__init__('Configuration file contain errors. Please provide valid Consumer and/or Producer data.')
+
+
+def parse(raw_configuration_file: dict) -> Configuration:
+    """
+    Read and parse config file into structured class instances.
+    :param raw_configuration_file: Configuration file parsed as a dictionary.
+    :return: Configuration instance
+    """
+    if not isinstance(raw_configuration_file, dict):
+        print("Config type should be dict. Type found is:")
+        print(type(raw_configuration_file))
+        raise AssertionError
+    is_consuming = 'consumption' in raw_configuration_file
+    is_producing = 'production' in raw_configuration_file
+    if not is_consuming and not is_producing:
+        raise ConfigurationFileError
+
+    consumption = [__parse_item(config) for config in raw_configuration_file['consumption']]
+    production = [__parse_item(config) for config in raw_configuration_file['production']]
+    return Configuration(consumption, production)
+
+
+def __parse_item(config_item: dict):
+    """
+    Parse each item of the consumers and producers list.
+    :param config_item: Item of the list
+    :return: Either Producer or Consumer configuration depending if carbon-emission key is present
+    """
+    item = {
+        'energy_meter': __parse_instance(config_item['energy-meter']),
+        'smart_contract': __parse_instance(config_item['smart-contract']),
+        'name': config_item['name']
     }
-    if not instance['name']:
-        raise ImportError('Configuration lacks `name` field.')
-    return InputConfiguration(**instance)
+    if 'carbon-emission' not in config_item:
+        return ConsumerConfiguration(**item)
+    else:
+        item['carbon_emission'] = __parse_instance(config_item['carbon-emission'])
+        return ProducerConfiguration(**item)
 
 
-def __get_configuration(input_configuration_list: list) -> [InputConfiguration]:
-    if not input_configuration_list:
-        return None
-    return [__get_input_configuration(configuration) for configuration in input_configuration_list]
-
-
-def __get_class_instance(submodule: dict) -> object:
+def __parse_instance(submodule: dict) -> object:
     """
     Reflection algorithm to dynamically load python modules referenced on the configuration json.
     :param submodule: Configuration dict must have the keys 'module', 'class_name', 'class_parameters'.
@@ -77,33 +105,3 @@ def __get_class_instance(submodule: dict) -> object:
     class_obj = getattr(module_instance, submodule['class_name'])
     class_instance = class_obj(**submodule['class_parameters'])
     return class_instance
-
-
-def parse_file(config_file_path: str) -> Configuration:
-    """
-    Read config file into structured class instances.
-    :param config_file_path: File system path to json format file.
-    :return: Configuration instance
-    """
-    config_json = json.load(open(config_file_path))
-    return parse(config_json)
-
-
-def parse(config_dict: dict) -> Configuration:
-    """
-    Read config file into structured class instances.
-    :param config_dict: Config dictionary.
-    :return: Configuration instance
-    """
-    if not isinstance(config_dict, dict):
-        print("Config type should be dict. Type found is:")
-        print(type(config_dict))
-        raise AssertionError
-    is_consuming = 'consumption' in config_dict
-    is_producing = 'production' in config_dict
-    instance = {
-        "consumption": __get_configuration(config_dict['consumption'] if is_consuming else None),
-        "production": __get_configuration(config_dict['production'] if is_producing else None),
-        "client": __get_class_instance(config_dict['client'])
-    }
-    return Configuration(**instance)

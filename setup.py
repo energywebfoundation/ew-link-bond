@@ -7,7 +7,7 @@ import setuptools
 setuptools.setup(
     name="ew-link-bond",
     version="0.2.1",
-    author="Jean Paul Depraz",
+    author="github.com/cerealkill",
     author_email="paul.depraz@energyweb.org",
     description="Energy data interface for blockchain smart contracts",
     long_description="Library designed to support the creation of interfaces for reading, parsing and writing energy \

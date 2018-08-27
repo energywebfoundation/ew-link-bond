@@ -1,5 +1,6 @@
 """
 DAO - Data Access Object
+The COO system relies on proofs that are stored on disk and cryptographicaly identified and indexed.
 """
 
 from core import LocalFileData, ChainData

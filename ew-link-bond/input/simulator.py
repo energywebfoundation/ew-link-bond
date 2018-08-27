@@ -1,13 +1,15 @@
+"""
+Library containing the implementations of smart-meter simulator integration classes
+"""
 import random
 import time
 
-from app.bond.core.input import EnergyDataSource, EnergyData, Device
+from core.input import EnergyDataSource, EnergyData, Device
 
 
-# Todo: Review, this is base only
 class EnergyMeter(EnergyDataSource):
     """
-    Data logger simulator. It will return a pseudo-randomized incremental value in every iteration
+    Data logger simulator. It will return a pseudo-random incremental number in every iteration
     """
 
     def __init__(self):

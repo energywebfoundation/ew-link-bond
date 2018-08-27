@@ -1,3 +1,7 @@
+"""
+Energy consuming assets registry and certificate emitter Smart-Contract interface
+Source: AssetConsumingRegistryLogic.sol
+"""
 contract = {
     "address": "0xc68fb291a6ddf3d4d9e3a061de39563bf269d868",
     "abi": [{'constant': False,

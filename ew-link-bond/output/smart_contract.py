@@ -1,3 +1,6 @@
+"""
+Library containing the implementations of general purpose smart-contract integration classes
+"""
 import time
 
 from web3 import HTTPProvider, Web3
@@ -9,9 +12,8 @@ from core.output import SmartContractClient
 class GeneralSmartContractClient(SmartContractClient):
     """
     General EVM based blockchain client smart contract integration.
-    Tested:
+    Tested on:
         - https://github.com/paritytech/parity
-        - https://github.com/ethereum/go-ethereum
         - https://github.com/energywebfoundation/energyweb-client
     """
 
@@ -29,16 +31,28 @@ class GeneralSmartContractClient(SmartContractClient):
         self.credentials = credentials
         self.contracts = contracts
 
-    def check_sync(self) -> bool:
+    def is_synced(self) -> bool:
+        """
+        Simple algorithm to check if the blockchain client is synced to the latest block.
+        :return: Is synced true or false
+        """
         synced_block = str(self.w3.eth.blockNumber)
         latest_block_obj = self.w3.eth.getBlock('latest')
         latest_block = str(latest_block_obj.number)
         return synced_block == latest_block
 
-    def send(self, contract_name: str, method_name: str, event_name: str, *args) -> dict:
+    def send(self, contract_name: str, method_name: str, *args) -> dict:
+        """
+        Sends a regular transaction to call a smart-contract method. This requires the user have the keys previously
+        imported to the blockchain client and to accept the transaction on Metamask or on the client's user interface.
+        :param contract_name: Contract key as in the contracts list used to instantiate this class.
+        :param method_name: Method name as in the contract abi.
+        :param args: Arguments passed when calling the method. Must be in the same order as in the abi.
+        :return: The transaction receipt after mining is confirmed.
+        """
         # TODO: Events parsing : myContract.events.myEvent().processReceipt(receipt)
         # TODO: Check for more elegant way of verifying the tx receipt
-        if not self.check_sync():
+        if not self.is_synced():
             raise ConnectionError('Client is not synced to the last block.')
         self.w3.personal.unlockAccount(account=self.w3.toChecksumAddress(self.credentials[0]),
                                        passphrase=self.credentials[1])
@@ -61,7 +75,14 @@ class GeneralSmartContractClient(SmartContractClient):
         return tx_receipt
 
     def call(self, contract_name: str, method_name: str, *args) -> dict:
-        if not self.check_sync():
+        """
+        Calls a smart-contract method without sending a transaction. Suitable for read-only operations.
+        :param contract_name: Contract key as in the contracts list used to instantiate this class.
+        :param method_name: Method name as in the contract abi.
+        :param args: Arguments passed when calling the method. Must be in the same order as in the abi.
+        :return: The transaction receipt after mining is confirmed.
+        """
+        if not self.is_synced():
             raise ConnectionError('Client is not synced to the last block.')
         contract = self.contracts[contract_name]
         contract_instance = self.w3.eth.contract(
@@ -72,14 +93,23 @@ class GeneralSmartContractClient(SmartContractClient):
         return getattr(contract_instance, method_name)(*args)
 
     def send_raw(self, contract_name: str, method_name: str, *args) -> dict:
-        if not self.check_sync():
-            raise ConnectionError('Client is not synced to the last block.')
-
+        """
+        Sends a raw transaction to call a smart-contract method.
+        First it creates the transaction, then fetches the account tx count - to avoid repetition attacks,
+        determines gas price, signs it, and finally sends it to the blockchain client.
+        :param contract_name: Contract key as in the contracts list used to instantiate this class.
+        :param method_name: Method name as in the contract abi.
+        :param args: Arguments passed when calling the method. Must be in the same order as in the abi.
+        :return: The transaction receipt after mining is confirmed.
+        """
         contract = self.contracts[contract_name]
         contract_instance = self.w3.eth.contract(
             abi=contract['abi'],
             address=self.w3.toChecksumAddress(contract['address']),
             bytecode=contract['bytecode'])
+
+        if not self.is_synced():
+            raise ConnectionError('Client is not synced to the last block.')
 
         nonce = self.w3.eth.getTransactionCount(account=self.w3.toChecksumAddress(self.credentials[0]))
         transaction = {
@@ -89,8 +119,7 @@ class GeneralSmartContractClient(SmartContractClient):
             'nonce': nonce,
         }
         tx = getattr(contract_instance.functions, method_name)(*args).buildTransaction(transaction)
-        self.w3.eth.enable_unaudited_features()
-        private_key = bytearray.fromhex(origin.wallet_pwd)
+        private_key = bytearray.fromhex(self.credentials[1])
         signed_txn = self.w3.eth.account.signTransaction(tx, private_key=private_key)
         tx_hash = self.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 

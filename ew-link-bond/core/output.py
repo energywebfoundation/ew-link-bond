@@ -31,7 +31,7 @@ class SmartContractClient(DataOutput):
     Ethereum-like smart contracts abstraction
     """
 
-    def check_sync(self) -> bool:
+    def is_synced(self) -> bool:
         """
         Compares latest block from peers with client's last synced block.
         :return: Synced status

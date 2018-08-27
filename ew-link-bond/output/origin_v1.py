@@ -1,8 +1,10 @@
-from output.origin.dao import ProducedChainData, ConsumedChainData
-
-from output.origin.producer_v1 import contract as producer_v1
-from output.origin.consumer_v1 import contract as consumer_v1
+"""
+Library containing the Certificate of Origin v1.0 integration classes
+"""
 from output.origin.asset_reg_v1 import contract as asset_reg_v1
+from output.origin.consumer_v1 import contract as consumer_v1
+from output.origin.dao import ProducedChainData, ConsumedChainData
+from output.origin.producer_v1 import contract as producer_v1
 from output.smart_contract import GeneralSmartContractClient
 
 
@@ -145,8 +147,14 @@ class OriginConsumer(OriginV1):
         Wait for:
             event LogNewMeterRead(uint indexed _assetId, uint _oldMeterRead, uint _newMeterRead, uint _certificatesUsedForWh, bool _smartMeterDown);
         """
-        receipt = self.send('consumer', 'saveSmartMeterRead', 'LogNewMeterRead', self.asset_id, consumed_energy.energy,
-                            consumed_energy.previous_hash.encode(), consumed_energy.is_meter_down)
+        if not isinstance(consumed_energy.energy, int):
+            raise ValueError('No Produced energy present or in wrong format.')
+        if not isinstance(consumed_energy.is_meter_down, bool):
+            raise ValueError('No Produced energy status present or in wrong format.')
+        if not isinstance(consumed_energy.previous_hash, str):
+            raise ValueError('No Produced hash of last file present or in wrong format.')
+        receipt = self.send_raw('consumer', 'saveSmartMeterRead',  self.asset_id, consumed_energy.energy,
+                                consumed_energy.previous_hash.encode(), consumed_energy.is_meter_down)
         if not receipt:
             raise ConnectionError
         return receipt

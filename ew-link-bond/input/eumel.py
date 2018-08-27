@@ -1,3 +1,6 @@
+"""
+Library containing the implementations of Eumel DataLogger integration classes
+"""
 import time
 from xml.etree import ElementTree
 
@@ -6,17 +9,16 @@ import requests
 from core.input import EnergyDataSource, EnergyData, Device
 
 
-# Todo: Review, this is base only
 class DataLoggerV1(EnergyDataSource):
     """
-    Eumel DataLogger api access implementation
+    Eumel DataLogger api v1.0 access implementation
     """
 
     def __init__(self, ip, user, password):
         """
         :param ip: Data loggers network IP
-        :param user:
-        :param password:
+        :param user: User configured on the devices
+        :param password: Password for this user
         """
         self.eumel_api_url = ip + '/rest'
         self.auth = (user, password)
@@ -44,14 +46,14 @@ class DataLoggerV1(EnergyDataSource):
 
 class DataLoggerV2d1d1(EnergyDataSource):
     """
-    Eumel DataLogger api access implementation
+    Eumel DataLogger api v2.1.1 access implementation
     """
 
     def __init__(self, ip, user, password):
         """
         :param ip: Data loggers network IP
-        :param user:
-        :param password:
+        :param user: User configured on the devices
+        :param password: Password for this user
         """
         self.eumel_api_url = ip + '/wizard/public/api/rest'
         self.auth = (user, password)

@@ -1,12 +1,15 @@
+"""
+Library containing the implementations of CO2 oracles integration classes
+"""
 import calendar
+import datetime
 
 import requests
-import datetime
 
 from core.input import CarbonEmissionDataSource, CarbonEmissionData
 
 
-class Wattime(CarbonEmissionDataSource):
+class WattimeV1(CarbonEmissionDataSource):
 
     def __init__(self, usr: str, pwd: str, ba: str, hours_from_now: int = 2):
         """

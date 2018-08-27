@@ -1,3 +1,6 @@
+"""
+Asset Registry Abstract Smart-Contract interface
+"""
 contract = {
     "address": "0x",
     "abi": [

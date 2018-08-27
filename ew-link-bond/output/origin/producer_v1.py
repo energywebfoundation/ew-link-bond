@@ -1,3 +1,7 @@
+"""
+Energy producing assets registry and certificate emitter Smart-Contract interface
+Source: AssetProducingRegistryLogic.sol
+"""
 contract = {
     "address": "0xc73728651f498682ab56a2a82ca700e06949b9b4",
     "abi": [{'constant': False,
