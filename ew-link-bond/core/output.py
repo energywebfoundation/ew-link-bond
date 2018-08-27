@@ -1,7 +1,6 @@
 """
 General external data output interfaces
 """
-import web3
 
 from core import JSONAble
 
@@ -31,16 +30,6 @@ class SmartContractClient(DataOutput):
     """
     Ethereum-like smart contracts abstraction
     """
-
-    def __init__(self, credentials: tuple, contracts: dict, provider: web3.providers.BaseProvider):
-        """
-        :param credentials: Network credentials ( address, password )
-        :param contracts: Contract structure containing name, ABI and bytecode and address keys.
-        :param provider: Blockchain client rpc structure containing endpoint URL and connection type
-        """
-        self.credentials = credentials
-        self.contracts = contracts
-        self.w3 = web3.Web3(provider)
 
     def check_sync(self) -> bool:
         """

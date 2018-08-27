@@ -6,25 +6,24 @@ from core.input import EnergyDataSource, CarbonEmissionDataSource
 from core.output import SmartContractClient
 
 
-class OriginCredentials(JSONAble):
-    def __init__(self, contract_address: str, asset_id: int, wallet_add: str, wallet_pwd: str):
+class Credentials(JSONAble):
+    def __init__(self, contract_address: str, wallet_add: str, wallet_pwd: str):
         self.contract_address = contract_address
-        self.asset_id = asset_id
         self.wallet_add = wallet_add
         self.wallet_pwd = wallet_pwd
 
 
 class InputConfiguration:
 
-    def __init__(self, energy: EnergyDataSource, origin: OriginCredentials, carbon_emission: CarbonEmissionDataSource, name: str):
+    def __init__(self, energy: EnergyDataSource, credentials: Credentials, carbon_emission: CarbonEmissionDataSource, name: str):
         if not isinstance(energy, EnergyDataSource):
             raise AttributeError
-        if not isinstance(origin, OriginCredentials):
+        if not isinstance(credentials, Credentials):
             raise AttributeError
         if carbon_emission is not None and not isinstance(carbon_emission, CarbonEmissionDataSource):
             raise AttributeError
         self.energy = energy
-        self.origin = origin
+        self.origin = credentials
         self.carbon_emission = carbon_emission
         self.name = name
 
@@ -49,6 +48,7 @@ class Configuration:
 
 
 def __get_input_configuration(configuration: dict) -> InputConfiguration:
+    # TODO: Conform to new config file
     emission = 'carbonemission' in configuration
     instance = {
         "energy": __get_class_instance(configuration['energy']),
