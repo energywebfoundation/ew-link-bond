@@ -106,3 +106,4 @@ venv.bak/
 .DS_Store
 
 ./tests/tobalaba
+./tests/prosumer.json

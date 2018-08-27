@@ -45,9 +45,9 @@ Simply install it as a dependency with `pip3 install ew-link-bond`,
 - Energyweb's Certificate of Origin v2.0
 - Your project here - We are open for suggestions!
 
-## Core Library
+## Library Organization
 
-The main component of the `bond` code is the [core](https://github.com/energywebfoundation/ewf-link-bond/tree/master/core) library, organized into `abstract`, `input` and `output`. Abstract defines all classes and interfaces to be inherited and implemented by input and output classes. As the names imply the software consists of loading and reading one or many input modules and write formatted data to output modules.
+The library is organized into `abstract`, `input` and `output`. Abstract defines all classes and interfaces to be inherited and implemented by input and output classes. As the names imply the software consists of loading and reading one or many input modules and write formatted data to output modules.
 
 ### Core Classes
 
@@ -61,13 +61,68 @@ Object to abstract data persistence, allowing connection to databases and disk s
 
 ### Configuration
 
-Descriptor loader to speed up the development of a bond based app.
+Descriptor loader to speed up the development of a bond-based app.
 
 This library can be used to load a `json` file that describes the modules to load for production and comsumption of energy, as well as to which blockchain clients and persistence modules to store the data collected. 
 
-Designed with reflection in mind, the configuration file needs to have a list of `consumption`, `production` and a `client`. These keywords are objects describing python-like `module` path, case-sensitive `class_name` and a dictionary of `class_parameters` that are required in the chosen class constructor.
+Designed with reflection in mind, the configuration file needs to have a list of `consumption`, and `production`. Consumers require the keywords `energy-meter`, and `smart-contract`. Producers require the keywords `energy-meter`, and `carbon-emission`, `smart-contract`.
+
+These keywords are objects describing python-like `module` path, case-sensitive `class_name` and a dictionary of `class_parameters` that are required in the chosen class constructor.
 
 **local-prosumer.json**
 ```json
-
+{
+  "consumption": [
+    {
+      "name": "my-home",
+      "energy-meter": {
+        "module": "input.simulator",
+        "class_name": "EnergyMeter",
+        "class_parameters": {
+        }
+      },
+      "smart-contract": {
+        "module": "output.origin_v1",
+        "class_name": "OriginConsumer",
+        "class_parameters": {
+          "asset_id": 4,
+          "client_url": "http://localhost:8143",
+          "wallet_add": "0x0074AD67550a8B0690EeE3E0CA99f406bEab678c",
+          "wallet_pwd": "574e43825f7217cb2de43d6a3d34d3d1a5e77d28aac36ee191282fc0a14c34e4"
+        }
+      }
+    }
+  ],
+  "production": [
+    {
+      "name": "my-solar-panels",
+      "energy-meter": {
+        "module": "input.simulator",
+        "class_name": "EnergyMeter",
+        "class_parameters": {
+        }
+      },
+      "carbon-emission": {
+        "module": "input.carbonemission",
+        "class_name": "Wattime",
+        "class_parameters": {
+          "usr": "your_user_here",
+          "pwd": "password_of_your_user",
+          "ba": "FR",
+          "hours_from_now": 24
+        }
+      },
+      "smart-contract": {
+        "module": "output.origin_v1",
+        "class_name": "OriginProducer",
+        "class_parameters": {
+          "asset_id": 3,
+          "client_url": "http://localhost:8143",
+          "wallet_add": "0x0074AD67550a8B0690EeE3E0CA99f406bEab678c",
+          "wallet_pwd": "574e43825f7217cb2de43d6a3d34d3d1a5e77d28aac36ee191282fc0a14c34e4"
+        }
+      }
+    }
+  ]
+}
 ```
