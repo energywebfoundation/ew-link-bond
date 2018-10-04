@@ -46,14 +46,14 @@ paths:
           in: query
           description: Date in RFC 3339 format. ie. 2018-03-14T17:11:19+00:00
           required: false
-          default: last_hour
           type: string
+          format: date-time
         - name: end
           in: query
           description: Date in RFC 3339 format. ie. 2018-03-14T17:12:20+00:00
           required: false
-          default: now
           type: string
+          format: date-time
       responses:
         # 200 when the measuredEnergy array has at least one entry.
         # 400 if the array is empty or request is malformed.
@@ -113,14 +113,14 @@ paths:
           in: query
           description: Date in RFC 3339 format. ie. 2018-03-14T17:11:19+00:00
           required: false
-          default: last_hour
           type: string
+          format: date-time
         - name: end
           in: query
           description: Date in RFC 3339 format. ie. 2018-03-14T17:12:20+00:00
           required: false
-          default: now
           type: string
+          format: date-time
       responses:
         # 200 when the measuredEnergy array has at least one entry.
         # 400 if the array is empty or request is malformed.
@@ -207,7 +207,8 @@ definitions:
         type: number
         description: Registered in Mega Watts
       measurement_time:
-        type: integer
+        type: string
+        format: date-time
         description: Time of measurement in the device, in RFC 3339 format. ie. 2018-03-14T17:12:20+00:00
   MeasuredEnergyOnDevice:
     type: object
