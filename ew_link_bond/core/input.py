@@ -1,7 +1,7 @@
 """
 General data input interfaces
 """
-from core import JSONAble
+from ew_link_bond.core import JSONAble
 
 
 class Device(JSONAble):

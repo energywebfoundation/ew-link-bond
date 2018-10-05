@@ -1,7 +1,7 @@
 import importlib
 
-from core.input import EnergyDataSource, CarbonEmissionDataSource
-from core.output import SmartContractClient
+from ew_link_bond.core.input import EnergyDataSource, CarbonEmissionDataSource
+from ew_link_bond.core.output import SmartContractClient
 
 
 class ConsumerConfiguration:
@@ -72,8 +72,10 @@ def parse(raw_configuration_file: dict) -> Configuration:
     if not is_consuming and not is_producing:
         raise ConfigurationFileError
 
-    consumption = [__parse_item(config) for config in raw_configuration_file['consumption']]
-    production = [__parse_item(config) for config in raw_configuration_file['production']]
+    consumption = [__parse_item(config)
+                   for config in raw_configuration_file['consumption']]
+    production = [__parse_item(config)
+                  for config in raw_configuration_file['production']]
     return Configuration(consumption, production)
 
 
@@ -91,7 +93,8 @@ def __parse_item(config_item: dict):
     if 'carbon-emission' not in config_item:
         return ConsumerConfiguration(**item)
     else:
-        item['carbon_emission'] = __parse_instance(config_item['carbon-emission'])
+        item['carbon_emission'] = __parse_instance(
+            config_item['carbon-emission'])
         return ProducerConfiguration(**item)
 
 

@@ -6,7 +6,7 @@ from xml.etree import ElementTree
 
 import requests
 
-from core.input import EnergyDataSource, EnergyData, Device
+from ew_link_bond.core.input import EnergyDataSource, EnergyData, Device
 
 
 class DataLoggerV1(EnergyDataSource):
@@ -32,7 +32,8 @@ class DataLoggerV1(EnergyDataSource):
             tree = ElementTree.parse(raw)
         tree_root = tree.getroot()
         tree_header = tree_root[0].attrib
-        tree_leaves = {child.attrib['id']: child.text for child in tree_root[0][0]}
+        tree_leaves = {child.attrib['id']
+            : child.text for child in tree_root[0][0]}
         device = Device(
             manufacturer=tree_header['man'],
             model=tree_header['mod'],
@@ -40,7 +41,8 @@ class DataLoggerV1(EnergyDataSource):
         access_timestamp = int(time.time())
         time_format = '%Y-%m-%dT%H:%M:%SZ'
         accumulated_power = float(tree_leaves['TotWhImp'].replace('.', ''))
-        measurement_timestamp = int(time.mktime(time.strptime(tree_header['t'], time_format)))
+        measurement_timestamp = int(time.mktime(
+            time.strptime(tree_header['t'], time_format)))
         return EnergyData(device, access_timestamp, raw, accumulated_power, measurement_timestamp)
 
 
@@ -69,7 +71,8 @@ class DataLoggerV2d1d1(EnergyDataSource):
             tree = ElementTree.ElementTree(ElementTree.fromstring(raw))
         tree_root = tree.getroot()
         tree_header = tree_root[0].attrib
-        tree_leaves = {child.attrib['id']: child.text for child in tree_root[0][1]}
+        tree_leaves = {child.attrib['id']
+            : child.text for child in tree_root[0][1]}
         device = Device(
             manufacturer=tree_header['man'],
             model=tree_header['mod'],
@@ -78,5 +81,6 @@ class DataLoggerV2d1d1(EnergyDataSource):
         access_timestamp = int(time.time())
         time_format = '%Y-%m-%dT%H:%M:%SZ'
         accumulated_power = float(tree_leaves['TotWhImp'])
-        measurement_timestamp = int(time.mktime(time.strptime(tree_header['t'], time_format)))
+        measurement_timestamp = int(time.mktime(
+            time.strptime(tree_header['t'], time_format)))
         return EnergyData(device, access_timestamp, str(raw), accumulated_power, measurement_timestamp)

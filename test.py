@@ -1,10 +1,12 @@
 import time
 
-from bond.origin import origin
-from bond.origin.origin import logger as logger
+import ew_link_bond
 
-meter = origin.input.simulator.EnergyMeter()
+from ew_link_bond.output import origin
+from ew_link_bond.tests.config import logger as logger
+from ew_link_bond.input.simulator import EnergyMeter
 
+meter = EnergyMeter()
 
 logger.warning("-= Night Compiler =-\n")
 logger.info("High verbosity is \033[1mON")

@@ -1,11 +1,11 @@
 """
 Library containing the Certificate of Origin v1.0 integration classes
 """
-from output.origin.asset_reg_v1 import contract as asset_reg_v1
-from output.origin.consumer_v1 import contract as consumer_v1
-from output.origin.dao import ProducedChainData, ConsumedChainData
-from output.origin.producer_v1 import contract as producer_v1
-from output.smart_contract import GeneralSmartContractClient
+from ew_link_bond.output.origin.asset_reg_v1 import contract as asset_reg_v1
+from ew_link_bond.output.origin.consumer_v1 import contract as consumer_v1
+from ew_link_bond.output.origin.dao import ProducedChainData, ConsumedChainData
+from ew_link_bond.output.origin.producer_v1 import contract as producer_v1
+from ew_link_bond.output.smart_contract import GeneralSmartContractClient
 
 
 class OriginV1(GeneralSmartContractClient):
@@ -76,13 +76,16 @@ class OriginProducer(OriginV1):
         if not isinstance(produced_energy.energy, int):
             raise ValueError('No Produced energy present or in wrong format.')
         if not isinstance(produced_energy.is_meter_down, bool):
-            raise ValueError('No Produced energy status present or in wrong format.')
+            raise ValueError(
+                'No Produced energy status present or in wrong format.')
         if not isinstance(produced_energy.previous_hash, str):
-            raise ValueError('No Produced hash of last file present or in wrong format.')
+            raise ValueError(
+                'No Produced hash of last file present or in wrong format.')
         if not isinstance(produced_energy.co2_saved, int):
             raise ValueError('No Produced co2 present or in wrong format.')
         if not isinstance(produced_energy.is_co2_down, bool):
-            raise ValueError('No Produced co2 status present or in wrong format.')
+            raise ValueError(
+                'No Produced co2 status present or in wrong format.')
 
         receipt = self.send_raw('producer', 'saveSmartMeterRead', self.asset_id, produced_energy.energy,
                                 produced_energy.is_meter_down, produced_energy.previous_hash.encode(),
@@ -99,7 +102,8 @@ class OriginProducer(OriginV1):
         Call stack:
             function getAssetDataLog(uint _assetId)
         """
-        receipt = self.call('producer', 'getLastSmartMeterReadFileHash', self.asset_id)
+        receipt = self.call(
+            'producer', 'getLastSmartMeterReadFileHash', self.asset_id)
         if not receipt:
             raise ConnectionError
         return receipt
@@ -150,9 +154,11 @@ class OriginConsumer(OriginV1):
         if not isinstance(consumed_energy.energy, int):
             raise ValueError('No Produced energy present or in wrong format.')
         if not isinstance(consumed_energy.is_meter_down, bool):
-            raise ValueError('No Produced energy status present or in wrong format.')
+            raise ValueError(
+                'No Produced energy status present or in wrong format.')
         if not isinstance(consumed_energy.previous_hash, str):
-            raise ValueError('No Produced hash of last file present or in wrong format.')
+            raise ValueError(
+                'No Produced hash of last file present or in wrong format.')
         receipt = self.send_raw('consumer', 'saveSmartMeterRead',  self.asset_id, consumed_energy.energy,
                                 consumed_energy.previous_hash.encode(), consumed_energy.is_meter_down)
         if not receipt:
@@ -167,7 +173,8 @@ class OriginConsumer(OriginV1):
         Call stack:
             function getAssetDataLog(uint _assetId)
         """
-        receipt = self.call('consumer', 'getLastSmartMeterReadFileHash', self.asset_id)
+        receipt = self.call(
+            'consumer', 'getLastSmartMeterReadFileHash', self.asset_id)
         if not receipt:
             raise ConnectionError
         return receipt

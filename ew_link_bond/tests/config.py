@@ -10,11 +10,11 @@ import time
 
 import colorlog
 
-import core.config as config_parser
-import output.origin.dao as dao
-from core.input import ExternalDataSource, ExternalData
-from input.eumel import DataLoggerV1, DataLoggerV2d1d1
-from output.origin.dao import ProductionFileData, ProducedChainData, ConsumptionFileData, ConsumedChainData
+import ew_link_bond.core.config as config_parser
+import ew_link_bond.output.origin.dao as dao
+from ew_link_bond.core.input import ExternalDataSource, ExternalData
+from ew_link_bond.input.eumel import DataLoggerV1, DataLoggerV2d1d1
+from ew_link_bond.output.origin.dao import ProductionFileData, ProducedChainData, ConsumptionFileData, ConsumedChainData
 
 PERSISTENCE = './tobalaba/'
 
@@ -70,7 +70,8 @@ def print_config(config_file: str = None):
         [logger.debug(prod.format(item.energy.__class__.__name__, item.carbon_emission.__class__.__name__))
          for item in user_config.production]
     if user_config.consumption is not None:
-        [logger.debug(coms.format(item.energy.__class__.__name__)) for item in user_config.consumption]
+        [logger.debug(coms.format(item.energy.__class__.__name__))
+         for item in user_config.consumption]
 
     return user_config
 
@@ -80,7 +81,8 @@ def _produce(chain_file, config, item) -> bool:
         production_local_chain = dao.DiskStorage(chain_file, PERSISTENCE)
         last_local_chain_hash = production_local_chain.get_last_hash()
         last_remote_state = config.client.last_state(item.origin)
-        produced_data = read_production_data(item, last_local_chain_hash, last_remote_state)
+        produced_data = read_production_data(
+            item, last_local_chain_hash, last_remote_state)
         created_file = production_local_chain.add_to_chain(produced_data)
         tx_receipt = config.client.mint(produced_data.produced, item.origin)
         class_name = item.energy.__class__.__name__
@@ -88,12 +90,15 @@ def _produce(chain_file, config, item) -> bool:
         block_number = str(tx_receipt['blockNumber'])
         msg = '[PROD] meter: {} - {} watts - {} kg of Co2 - block: {}'
         if data.is_meter_down:
-            logger.warning(msg.format(class_name, data.energy, data.co2_saved, block_number))
+            logger.warning(msg.format(class_name, data.energy,
+                                      data.co2_saved, block_number))
         else:
-            logger.info(msg.format(class_name, data.energy, data.co2_saved, block_number))
+            logger.info(msg.format(class_name, data.energy,
+                                   data.co2_saved, block_number))
         return True
     except Exception as e:
-        error_log.exception("[BOND][PROD] meter: {} - stack: {}".format(item.energy.__class__.__name__, e))
+        error_log.exception(
+            "[BOND][PROD] meter: {} - stack: {}".format(item.energy.__class__.__name__, e))
         return False
 
 
@@ -104,7 +109,8 @@ def print_production_results(config: config_parser.Configuration, item: config_p
             return
         time.sleep(300 * trial)
         if trial == 2:
-            logger.critical("[COMS][FAIL] meter: {} - Check error.log".format(item.energy.__class__.__name__))
+            logger.critical(
+                "[COMS][FAIL] meter: {} - Check error.log".format(item.energy.__class__.__name__))
 
 
 def _consume(chain_file, config: config_parser.ConsumerConfiguration, item):
@@ -112,7 +118,8 @@ def _consume(chain_file, config: config_parser.ConsumerConfiguration, item):
         consumption_local_chain = dao.DiskStorage(chain_file, PERSISTENCE)
         last_local_chain_hash = consumption_local_chain.get_last_hash()
         last_remote_state = config.client.last_state(item.origin)
-        consumed_data = read_consumption_data(item, last_local_chain_hash, last_remote_state)
+        consumed_data = read_consumption_data(
+            item, last_local_chain_hash, last_remote_state)
         created_file = consumption_local_chain.add_to_chain(consumed_data)
         tx_receipt = config.client.mint(consumed_data.consumed, item.origin)
         class_name = item.energy.__class__.__name__
@@ -120,12 +127,14 @@ def _consume(chain_file, config: config_parser.ConsumerConfiguration, item):
         block_number = str(tx_receipt['blockNumber'])
         message = '[COMS] meter: {} - {} watts - block: {}'
         if data.is_meter_down:
-            logger.warning(message.format(class_name, data.energy, block_number))
+            logger.warning(message.format(
+                class_name, data.energy, block_number))
         else:
             logger.info(message.format(class_name, data.energy, block_number))
         return True
     except Exception as e:
-        error_log.exception("[BOND][COMS] meter: {} - stack: {}".format(item.energy.__class__.__name__, e))
+        error_log.exception(
+            "[BOND][COMS] meter: {} - stack: {}".format(item.energy.__class__.__name__, e))
         return False
 
 
@@ -136,23 +145,27 @@ def print_consumption_results(config: config_parser.Configuration, item: config_
             return
         time.sleep(300 * trial)
         if trial == 2:
-            logger.critical("[COMS][FAIL] meter: {} - Check error.log".format(item.energy.__class__.__name__))
+            logger.critical(
+                "[COMS][FAIL] meter: {} - Check error.log".format(item.energy.__class__.__name__))
 
 
 def log(configuration: config_parser.Configuration):
     fn = '{}.pkl'
     if configuration.production:
         production = [item for item in configuration.production]
-        [print_production_results(configuration, item, fn.format(item.name)) for item in production]
+        [print_production_results(configuration, item, fn.format(
+            item.name)) for item in production]
     if configuration.consumption:
-        [print_consumption_results(configuration, item, fn.format(item.name)) for item in configuration.consumption]
+        [print_consumption_results(configuration, item, fn.format(
+            item.name)) for item in configuration.consumption]
 
 
 def log_sp(configuration: config_parser.Configuration):
     fn = '{}.pkl'
     if configuration.production:
         production = [item for item in configuration.production]
-        [print_production_results(configuration, item, fn.format(item.name)) for item in production]
+        [print_production_results(configuration, item, fn.format(
+            item.name)) for item in production]
 
 
 def schedule(kwargs):
@@ -165,10 +178,13 @@ def schedule(kwargs):
     remaining_hours = set(range(24)) - set(range(today.hour))
     for hour in list(remaining_hours):
         hourly_wake = today.replace(hour=hour, minute=1)
-        scheduler.enterabs(time=time.mktime(hourly_wake.timetuple()), priority=2, action=log_sp, kwargs=kwargs)
+        scheduler.enterabs(time=time.mktime(
+            hourly_wake.timetuple()), priority=2, action=log_sp, kwargs=kwargs)
     hourly_wake = tomorrow.replace(hour=0, minute=1)
-    scheduler.enterabs(time=time.mktime(hourly_wake.timetuple()), priority=2, action=log_sp, kwargs=kwargs)
-    scheduler.enterabs(time=time.mktime(daily_wake.timetuple()), priority=1, action=log, kwargs=kwargs)
+    scheduler.enterabs(time=time.mktime(hourly_wake.timetuple()),
+                       priority=2, action=log_sp, kwargs=kwargs)
+    scheduler.enterabs(time=time.mktime(daily_wake.timetuple()),
+                       priority=1, action=log, kwargs=kwargs)
     scheduler.run()
 
 
@@ -233,7 +249,8 @@ def read_consumption_data(config: config_parser.ConsumerConfiguration, last_hash
     input_data = ConsumptionFileData(**input_data_dict)
     # add last measured energy in case it is not accumulated
     # TODO: refactor this to the data input classes
-    energy = int(input_data.raw_energy.accumulated_power) if input_data.raw_energy else 0
+    energy = int(
+        input_data.raw_energy.accumulated_power) if input_data.raw_energy else 0
     if not (isinstance(config.energy, DataLoggerV1) or isinstance(config.energy, DataLoggerV2d1d1)):
         last_energy = last_state[5]
         energy += last_energy

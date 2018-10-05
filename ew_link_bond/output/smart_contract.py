@@ -6,7 +6,7 @@ import time
 from web3 import HTTPProvider, Web3
 from web3.contract import ConciseContract
 
-from core.output import SmartContractClient
+from ew_link_bond.core.output import SmartContractClient
 
 
 class GeneralSmartContractClient(SmartContractClient):
@@ -111,16 +111,19 @@ class GeneralSmartContractClient(SmartContractClient):
         if not self.is_synced():
             raise ConnectionError('Client is not synced to the last block.')
 
-        nonce = self.w3.eth.getTransactionCount(account=self.w3.toChecksumAddress(self.credentials[0]))
+        nonce = self.w3.eth.getTransactionCount(
+            account=self.w3.toChecksumAddress(self.credentials[0]))
         transaction = {
             'from': self.w3.toChecksumAddress(self.credentials[0]),
             'gas': 400000,
             'gasPrice': self.w3.toWei('0', 'gwei'),
             'nonce': nonce,
         }
-        tx = getattr(contract_instance.functions, method_name)(*args).buildTransaction(transaction)
+        tx = getattr(contract_instance.functions, method_name)(
+            *args).buildTransaction(transaction)
         private_key = bytearray.fromhex(self.credentials[1])
-        signed_txn = self.w3.eth.account.signTransaction(tx, private_key=private_key)
+        signed_txn = self.w3.eth.account.signTransaction(
+            tx, private_key=private_key)
         tx_hash = self.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
 
         if not tx_hash:

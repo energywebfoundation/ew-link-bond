@@ -2,7 +2,7 @@
 General external data output interfaces
 """
 
-from core import JSONAble
+from ew_link_bond.core import JSONAble
 
 
 class DataOutput(JSONAble):

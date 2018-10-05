@@ -5,7 +5,7 @@ https://pypi.org/classifiers/
 import setuptools
 
 setuptools.setup(
-    name="ew-link-bond",
+    name="ew_link_bond",
     version="0.3.0",
     author="github.com/cerealkill",
     author_email="paul.depraz@energyweb.org",

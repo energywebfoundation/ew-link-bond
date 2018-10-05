@@ -8,7 +8,7 @@ import pickle
 import hashlib
 import datetime
 
-from core import LocalFileData, base58
+from ew_link_bond.core import LocalFileData, base58
 
 
 class ChainFile:
@@ -25,6 +25,7 @@ class ChainLink:
     """
     List link
     """
+
     def __init__(self, data: ChainFile, last_link: object):
         self.data = data
         self.last_link = last_link
@@ -97,7 +98,8 @@ class DiskStorage:
         self.__save_memory()
 
     def __save_memory(self):
-        pickle.dump(self.__memory, open(self.chain_file, 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump(self.__memory, open(self.chain_file, 'wb'),
+                    protocol=pickle.HIGHEST_PROTOCOL)
 
     def __save_file(self, data):
         if not os.path.exists(self.path):

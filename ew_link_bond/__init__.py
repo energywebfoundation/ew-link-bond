@@ -7,5 +7,5 @@
 
 Bond - Your favorite library for logging data on the blockchain
 """
-name = 'ew-link-bond'
+name = 'ew_link_bond'
 author = 'github.com/cerealkill'

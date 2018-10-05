@@ -3,15 +3,16 @@ DAO - Data Access Object
 The COO system relies on proofs that are stored on disk and cryptographicaly identified and indexed.
 """
 
-from core import LocalFileData, ChainData
-from core.dao import DiskStorage
-from core.input import EnergyData, CarbonEmissionData
+from ew_link_bond.core import LocalFileData, ChainData
+from ew_link_bond.core.dao import DiskStorage
+from ew_link_bond.core.input import EnergyData, CarbonEmissionData
 
 
 class ProducedChainData(ChainData):
     """
     Helper for mint_produced
     """
+
     def __init__(self, energy: int, is_meter_down: bool, previous_hash: str, co2_saved: int, is_co2_down: bool):
         """
         :type previous_hash: previous
@@ -29,6 +30,7 @@ class ConsumedChainData(ChainData):
     """
     Helper for mint_consumed
     """
+
     def __init__(self, energy: int, previous_hash: str, is_meter_down: bool):
         """
         :type previous_hash: previous
@@ -59,6 +61,7 @@ class ConsumptionFileData(LocalFileData):
     """
     Structure of every consumption data stored on disk
     """
+
     def __init__(self, raw_energy: EnergyData, consumed: ConsumedChainData):
         self.raw_energy = raw_energy
         self.consumed = consumed
@@ -68,6 +71,7 @@ class ProductionFileData(LocalFileData):
     """
     Structure of every production data stored on disk
     """
+
     def __init__(self, raw_energy: EnergyData, raw_carbon_emitted: CarbonEmissionData, produced: ProducedChainData):
         self.raw_energy = raw_energy
         self.raw_carbon_emitted = raw_carbon_emitted
