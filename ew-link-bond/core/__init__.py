@@ -3,6 +3,25 @@ import datetime
 
 
 class JSONAble(object):
+    def __iter__(self):
+        for attr, value in self.__dict__.items():
+            if isinstance(value, datetime.datetime):
+                iso = value.isoformat()
+                yield attr, iso
+            elif hasattr(value, '__iter__'):
+                if hasattr(value, 'pop'):
+                    a = []
+                    for item in value:
+                        if hasattr(item, '__iter__'):
+                            a.append(dict(item))
+                        else:
+                            a.append(item)
+                    yield attr, a
+                else:
+                    yield attr, dict(value)
+            else:
+                yield attr, value
+
     def to_dict(self):
         result = {}
         init = getattr(self, '__init__')
@@ -22,37 +41,6 @@ class JSONAble(object):
             return to_dict()
         else:
             return obj
-
-
-class CEST(datetime.tzinfo):
-
-    def __init__(self):
-        self.ZERO = datetime.timedelta(0)
-        self.TWO = datetime.timedelta(hours=2)
-
-    def utcoffset(self, dt):
-        return self.TWO
-
-    def tzname(self, dt):
-        return "CEST"
-
-    def dst(self, dt):
-        return self.TWO
-
-
-class UTC(datetime.tzinfo):
-
-    def __init__(self):
-        self.ZERO = datetime.timedelta(0)
-
-    def utcoffset(self, dt):
-        return self.ZERO
-
-    def tzname(self, dt):
-        return "UTC"
-
-    def dst(self, dt):
-        return self.ZERO
 
 
 class LocalFileData(JSONAble):

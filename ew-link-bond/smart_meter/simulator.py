@@ -1,8 +1,8 @@
 """
 Library containing the implementations of smart-meter simulator integration classes
 """
-import random
 import time
+import random
 
 from core.input import EnergyDataSource, EnergyData, Device
 
@@ -16,14 +16,15 @@ class EnergyMeter(EnergyDataSource):
         self.memory = random.randint(1, 20)
 
     def read_state(self) -> EnergyData:
-        access_timestamp = int(time.time())
+        access_epoch = int(time.time())
         device = Device(
             manufacturer='Slock.it',
             model='Virtual Energy Meter',
             serial_number='0001000',
             geolocation=(1.123, 1.321))
-        accumulated_power = random.randint(self.memory, (self.memory + 1) + 20)
-        measurement_timestamp = int(time.time())
+        mwh_power = random.randint(self.memory, (self.memory + 1) + 20)
+        measurement_epoch = int(time.time())
         device_str = device.manufacturer + device.model + device.serial_number
-        raw = str(device_str + str(access_timestamp) + str(accumulated_power) + str(measurement_timestamp))
-        return EnergyData(device, access_timestamp, raw, accumulated_power, measurement_timestamp)
+        raw = str(device_str + str(access_epoch) + str(mwh_power) + str(measurement_epoch))
+        return EnergyData(device=device, access_epoch=access_epoch, raw=raw, mwh_power=mwh_power,
+                          measurement_epoch=measurement_epoch)

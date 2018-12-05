@@ -3,7 +3,6 @@ Library containing the implementations of CO2 oracles integration classes
 """
 import calendar
 import datetime
-
 import requests
 
 from core.input import CarbonEmissionDataSource, CarbonEmissionData

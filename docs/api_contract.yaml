@@ -9,7 +9,7 @@ info:
   # Always change the version of the API endpoints and contracts, keeping compatibility in the major version. Also keep the previous versions available for retro compatibility.
   # I.E. Client versions 1.*.* are able to access the /v1/* endpoints without changing any code. Minor versions only fix typos and unpredicted behavior, adding endpoints is possible but not removing previous ones.
   # When version 2.0.0 is release under /v2/* endpoint, /v1 is kept for keeping version 1.*.* working.
-  version: "1.0.0"
+  version: "2.0.0"
 # the domain of the service, site can be added like api.site_name.your_company.com, keeping site_name.your_company.com for dashboards or any other webapp based on api.site_name.your_company.com.
 host: api.yourcompany.com
 # array of all schemes that your API supports
@@ -18,7 +18,7 @@ host: api.yourcompany.com
 schemes:
   - https
 # will be prefixed to all paths
-basePath: /v1
+basePath: /v2
 produces:
   - application/json
 securityDefinitions:
@@ -28,32 +28,44 @@ securityDefinitions:
 security:
   - basicAuth: []
 paths:
-  /consumed:
+  '/consumed/{deviceId}':
     get:
       summary: Consumed energy
       description: Energy consumed measured in Mega Watts during a certain period.
       tags:
         - Energy Consumer
       parameters:
+        - name: deviceId
+          in: path
+          description: Device identification number
+          required: true
+          type: integer
+          format: int32
         - name: limit
           in: query
           description: How many items to return at one time (max 10)
-          required: false
+          required: true
           default: 5
           type: integer
           format: int32
         - name: start
           in: query
           description: Date in RFC 3339 format. ie. 2018-03-14T17:11:19+00:00
-          required: false
+          required: true
           default: last_hour
           type: string
         - name: end
           in: query
           description: Date in RFC 3339 format. ie. 2018-03-14T17:12:20+00:00
-          required: false
+          required: true
           default: now
           type: string
+        - name: page
+          in: query
+          description: Page number
+          required: false
+          default: 0
+          type: integer
       responses:
         # 200 when the measuredEnergy array has at least one entry.
         # 400 if the array is empty or request is malformed.
@@ -74,6 +86,13 @@ paths:
     post:
       tags:
         - Not Implemented
+      parameters:
+        - name: deviceId
+          in: path
+          description: Device identification number
+          required: true
+          type: integer
+          format: int32
       responses:
         405:
           $ref: '#/responses/MethodNotAllowed'
@@ -82,6 +101,13 @@ paths:
     put:
       tags:
         - Not Implemented
+      parameters:
+        - name: deviceId
+          in: path
+          description: Device identification number
+          required: true
+          type: integer
+          format: int32
       responses:
         405:
           $ref: '#/responses/MethodNotAllowed'
@@ -90,37 +116,56 @@ paths:
     delete:
       tags:
         - Not Implemented
+      parameters:
+        - name: deviceId
+          in: path
+          description: Device identification number
+          required: true
+          type: integer
+          format: int32
       responses:
         405:
           $ref: '#/responses/MethodNotAllowed'
         501:
           $ref: "#/responses/NotImplemented"
-  /produced:
+  '/produced/{deviceId}':
     get:
       summary: Produced energy
       description: Energy produced measured in Mega Watts during a certain period.
       tags:
         - Energy Producer
       parameters:
+        - name: deviceId
+          in: path
+          description: Device identification number
+          required: true
+          type: integer
+          format: int32
         - name: limit
           in: query
           description: How many items to return at one time (max 10)
-          required: false
+          required: true
           default: 5
           type: integer
           format: int32
         - name: start
           in: query
           description: Date in RFC 3339 format. ie. 2018-03-14T17:11:19+00:00
-          required: false
+          required: true
           default: last_hour
           type: string
         - name: end
           in: query
           description: Date in RFC 3339 format. ie. 2018-03-14T17:12:20+00:00
-          required: false
+          required: true
           default: now
           type: string
+        - name: page
+          in: query
+          description: Page number
+          required: false
+          default: 0
+          type: integer
       responses:
         # 200 when the measuredEnergy array has at least one entry.
         # 400 if the array is empty or request is malformed.
@@ -141,6 +186,13 @@ paths:
     post:
       tags:
         - Not Implemented
+      parameters:
+        - name: deviceId
+          in: path
+          description: Device identification number
+          required: true
+          type: integer
+          format: int32
       responses:
         405:
           $ref: '#/responses/MethodNotAllowed'
@@ -149,6 +201,13 @@ paths:
     put:
       tags:
         - Not Implemented
+      parameters:
+        - name: deviceId
+          in: path
+          description: Device identification number
+          required: true
+          type: integer
+          format: int32
       responses:
         405:
           $ref: '#/responses/MethodNotAllowed'
@@ -157,6 +216,13 @@ paths:
     delete:
       tags:
         - Not Implemented
+      parameters:
+        - name: deviceId
+          in: path
+          description: Device identification number
+          required: true
+          type: integer
+          format: int32
       responses:
         405:
           $ref: '#/responses/MethodNotAllowed'
@@ -199,11 +265,17 @@ definitions:
       longitude:
         type: string
         description: Geolocation point latitude
+      energy_unity:
+        type: string
+        description: Unit of energy measurement. MUST be "joules", "watt_hour", "kilowatt_hour", "megawatt_hour" or "gigawatt_hour".
+      is_accumulated:
+        type: boolean
+        description: Defines if the provided energy data is accumulated or not. It is common that solar panels only provide energy generated at the measurement time, not the accumulated value like a domestic energy meter, for example.
   MeasuredEnergy:
     description: Energy measured at a certain time.
     type: object
     properties:
-      accumulated_power:
+      energy:
         type: number
         description: Registered in Mega Watts
       measurement_time:
@@ -212,15 +284,18 @@ definitions:
   MeasuredEnergyOnDevice:
     type: object
     properties:
-      count:
+      page:
         type: integer
-        description: Page count
+        description: Page number
       previous:
         type: string
         description: Link to previous page
       next:
         type: string
         description: Link to next page
+      device_id:
+        type: integer
+        description: Device number, for identification when there are multiple devices in the same site with only one api point.
       device:
         $ref: '#/definitions/Device'
       measuredEnergy:

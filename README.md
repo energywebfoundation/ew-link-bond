@@ -16,9 +16,22 @@ Simply install it as a dependency with `pip3 install ew-link-bond`,
 ### Features
 - Raw transactions signing
 - Extension and reusability through OOP
+- Asyncio thread pool control and event loop
+- General application abstraction
 
-#### Planned Features
-- Further support of Energy Assets
+#### Features Roadmap
+- General Smart-Contract event listener
+- Remote Logging with some tool (maybe Data Dog)
+- Accept YAML to generate JSON for more human readable config
+- Merkle tree proofs for collected data. Check [precise proofs](https://medium.com/centrifuge/introducing-precise-proofs-create-validate-field-level-merkle-proofs-a31af9220df0) and [typescript implementation](https://github.com/slockit/precise-proofs).
+    - Fiel-level validation
+    - Document integrity validation
+    - Document structure enforcement
+- ZK-SNARKS based token splitting
+    - Split a token without revealing the total amount in the contract
+    - Linear gas costs
+- IPFS storage
+    - UUID pre-calculation and validation
 - Enforce TLS/SSL over http
 - Artik710/710s support with:
     - Offloaded cryptography to hardware acceletors
@@ -32,7 +45,7 @@ Simply install it as a dependency with `pip3 install ew-link-bond`,
 - [Wattime CO2 Emission API v1.0](https://api.watttime.org/docs/)
 - [Wattime CO2 Emission API v2.0](https://api.watttime.org/docs/)
 
-#### Planned
+#### Energy Assets Roadmap
 - [Gridx Gridbox](https://gridx.de/produkt/gridbox/)
 - [Loxone Miniserver](https://www.loxone.com/enen/products/miniserver-extensions/)
 
@@ -40,9 +53,10 @@ Simply install it as a dependency with `pip3 install ew-link-bond`,
 
 - [Energyweb's Certificate of Origin v1.0](https://github.com/energywebfoundation/ew-origin)
 
-#### Planned
-- Energyweb's Asset Registry
-- Energyweb's Certificate of Origin v2.0
+#### Smart-Contracts Roadmap
+- Universal Sharing Network 
+- Energyweb Asset Registry
+- Energyweb Certificate of Origin v2.0
 - Your project here - We are open for suggestions!
 
 ## Library Organization
@@ -55,12 +69,16 @@ The core library comes with an object-oriented structure to standardize and supp
 
 ![Core Library Class Diagram](https://github.com/energywebfoundation/ewf-link-bond/blob/master/docs/media/core-class-diagram.png)
 
+Asyncio event loop abstraction:
+
+![Event Loop](https://github.com/energywebfoundation/ewf-link-bond/blob/master/docs/media/threads.png)
+
 ### Data Access Object
 
 Object to abstract data persistence, allowing connection to databases and disk storage using the same interfaces. 
 
 ### Configuration
-
+            
 Descriptor loader to speed up the development of a bond-based app.
 
 This library can be used to load a `json` file that describes the modules to load for production and comsumption of energy, as well as to which blockchain clients and persistence modules to store the data collected. 
@@ -72,7 +90,7 @@ These keywords are objects describing python-like `module` path, case-sensitive 
 **local-prosumer.json**
 ```json
 {
-  "consumption": [
+  "consumers": [
     {
       "name": "my-home",
       "energy-meter": {
@@ -93,7 +111,7 @@ These keywords are objects describing python-like `module` path, case-sensitive 
       }
     }
   ],
-  "production": [
+  "producers": [
     {
       "name": "my-solar-panels",
       "energy-meter": {
