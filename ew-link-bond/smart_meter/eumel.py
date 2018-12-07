@@ -7,7 +7,8 @@ import time
 import requests
 
 from xml.etree import ElementTree
-from core.input import EnergyDataSource, EnergyData, Device, EnergyUnit
+from core.integration import EnergyDataSource
+from core import EnergyUnit, RawEnergyData, EnergyAsset
 
 
 class DataLoggerV1(EnergyDataSource):
@@ -28,7 +29,7 @@ class DataLoggerV1(EnergyDataSource):
         self.auth = (user, password)
         super().__init__(unit=EnergyUnit.WATT_HOUR, is_accumulated=True)
 
-    def read_state(self, path=None) -> EnergyData:
+    def read_state(self, path=None) -> RawEnergyData:
         if path:
             tree = ElementTree.parse(path)
             with open(path) as file:
@@ -40,7 +41,7 @@ class DataLoggerV1(EnergyDataSource):
         tree_root = tree.getroot()
         tree_header = tree_root[0].attrib
         tree_leaves = {child.attrib['id']: child.text for child in tree_root[0][0]}
-        device = Device(
+        device = EnergyAsset(
             manufacturer=tree_header['man'],
             model=tree_header['mod'],
             serial_number=tree_header['sn'])
@@ -49,8 +50,8 @@ class DataLoggerV1(EnergyDataSource):
         energy = float(tree_leaves['TotWhImp'].replace('.', ''))
         mwh_energy = self.energy_in_mwh(energy)
         measurement_epoch = int(time.mktime(time.strptime(tree_header['t'], time_format)))
-        return EnergyData(device=device, access_epoch=access_epoch, raw=raw, mwh_energy=mwh_energy, unit=self.unit,
-                          measurement_epoch=measurement_epoch, is_accumulated=self.is_accumulated)
+        return RawEnergyData(asset=device, access_epoch=access_epoch, raw=raw, mwh_energy=mwh_energy, unit=self.unit,
+                             measurement_epoch=measurement_epoch, is_accumulated=self.is_accumulated)
 
 
 class DataLoggerV2d1d1(EnergyDataSource):
@@ -71,7 +72,7 @@ class DataLoggerV2d1d1(EnergyDataSource):
         self.auth = (user, password)
         super().__init__(unit=EnergyUnit.WATT_HOUR, is_accumulated=True)
 
-    def read_state(self, path=None) -> EnergyData:
+    def read_state(self, path=None) -> RawEnergyData:
         if path:
             tree = ElementTree.parse(path)
             with open(path) as file:
@@ -83,7 +84,7 @@ class DataLoggerV2d1d1(EnergyDataSource):
         tree_root = tree.getroot()
         tree_header = tree_root[0].attrib
         tree_leaves = {child.attrib['id']: child.text for child in tree_root[0][1]}
-        device = Device(
+        device = EnergyAsset(
             manufacturer=tree_header['man'],
             model=tree_header['mod'],
             serial_number=tree_header['sn'],
@@ -93,5 +94,5 @@ class DataLoggerV2d1d1(EnergyDataSource):
         energy = float(tree_leaves['TotWhImp'])
         mwh_energy = self.energy_in_mwh(energy)
         measurement_epoch = int(time.mktime(time.strptime(tree_header['t'], time_format)))
-        return EnergyData(device=device, access_epoch=access_epoch, raw=raw, mwh_energy=mwh_energy, unit=self.unit,
-                          measurement_epoch=measurement_epoch, is_accumulated=self.is_accumulated)
+        return RawEnergyData(asset=device, access_epoch=access_epoch, raw=raw, mwh_energy=mwh_energy, unit=self.unit,
+                             measurement_epoch=measurement_epoch, is_accumulated=self.is_accumulated)

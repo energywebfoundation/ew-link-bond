@@ -4,7 +4,7 @@ from xml.etree import ElementTree
 
 import requests
 import web3
-from core import Spinner, Device, LogEntry
+from core import Spinner, EnergyAsset, LogEntry
 
 ACCOUNT = '0x00E27b1BB824D66d8ec926f23b04913Fe9b1Bd77'
 CONTRACT = '0x122A00cAef700037Bb74D269468c82b21629507F'
@@ -33,7 +33,7 @@ def parse_eumel_xml():
     tree_root = tree.getroot()
     tree_header = tree_root[0].attrib
     tree_leaves = {child.attrib['id']: child.text for child in tree_root[0][0]}
-    parsed_device = Device(manufacturer=tree_header['man'], model=tree_header['mod'], serial_number=tree_header['sn'])
+    parsed_device = EnergyAsset(manufacturer=tree_header['man'], model=tree_header['mod'], serial_number=tree_header['sn'])
     time_format = '%Y-%m-%dT%H:%M:%SZ'
     converted_epoch_time = int(time.mktime(time.strptime(tree_header['t'], time_format)))
     accumulated_measurement_in_watts = int(tree_leaves['TotWhImp'].replace('.', ''))

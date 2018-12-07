@@ -5,77 +5,62 @@ Configuration file parser and app descriptor
 """
 import importlib
 
-from core.input import EnergyDataSource, CarbonEmissionDataSource
-from core.output import SmartContractClient
-
-
-class EnergyAssetConfiguration:
-    """
-    Abstract Classs to represent Energy Asset configuration
-    """
-
-
-class ConsumerConfigurationEnergy(EnergyAssetConfiguration):
-    """
-    Represents one user-provided energy consuming asset configuration
-    """
-    def __init__(self, name: str, energy_meter: EnergyDataSource, smart_contract: SmartContractClient):
-        if not isinstance(energy_meter, EnergyDataSource):
-            raise AttributeError('Energy_meter must be of an EnergyDataSource class or subclass.')
-        if len(name) < 2:
-            raise AttributeError('Name must be longer than two characters.')
-        self.name = name
-        self.energy = energy_meter
-        self.smart_contract = smart_contract
-
-
-class ProducerConfiguration(EnergyAssetConfiguration):
-    """
-    Represents one user-provided energy producing asset configuration
-    """
-
-    def __init__(self, name: str, energy_meter: EnergyDataSource, carbon_emission: CarbonEmissionDataSource,
-                 smart_contract: SmartContractClient):
-        if not isinstance(carbon_emission, CarbonEmissionDataSource):
-            raise AttributeError('Carbon_emission must be of an CarbonEmissionDataSource class or subclass.')
-        self.carbon_emission = carbon_emission
-        super().__init__(name=name, energy_meter=energy_meter, smart_contract=smart_contract)
-
-
-class Configuration:
-    """
-    Represents the user-provided parsed configuration json
-    """
-    def __init__(self, consumption: [ConsumerConfigurationEnergy], production: [ProducerConfiguration]):
-        [self.__check(item, ConsumerConfigurationEnergy) for item in consumption]
-        [self.__check(item, ProducerConfiguration) for item in production]
-        self.consumption = consumption
-        self.production = production
-
-    @staticmethod
-    def __check(item, cls):
-        if not isinstance(item, cls):
-            raise ConfigurationFileError
+from core.integration import EnergyDataSource, CarbonEmissionDataSource, SmartContractClient
 
 
 class ConfigurationFileError(Exception):
     """
     Custom Exception to deal with non-conforming configuration files
     """
-    def __init__(self):
-        super().__init__('Configuration file contain errors. Please provide valid Consumer and/or Producer data.')
+    def __init__(self, msg: str = None):
+        if not msg:
+            super().__init__('Configuration file contain errors. Please provide valid Consumer and/or Producer data.')
+        super().__init__(msg)
 
 
-def parse(raw_configuration_file: dict) -> Configuration:
+class EnergyAssetConfiguration:
     """
-    Read and parse config file into structured class instances.
+    Represent Energy Asset configurations for producer and consumers
+    """
+    def __init__(self, name: str, energy_meter: EnergyDataSource, smart_contract: SmartContractClient):
+        if not isinstance(energy_meter, EnergyDataSource):
+            raise ConfigurationFileError('Energy_meter must be of an EnergyDataSource class or subclass.')
+        if len(name) < 2:
+            raise ConfigurationFileError('Name must be longer than two characters.')
+        self.name = name
+        self.meter = energy_meter
+        self.smart_contract = smart_contract
+
+
+class GreenEnergyProducerConfiguration(EnergyAssetConfiguration):
+    """
+    Represents special case of energy producer
+    """
+    def __init__(self, name: str, energy_meter: EnergyDataSource, carbon_emission: CarbonEmissionDataSource,
+                 smart_contract: SmartContractClient):
+        if not isinstance(carbon_emission, CarbonEmissionDataSource):
+            raise ConfigurationFileError('Carbon_emission must be of an CarbonEmissionDataSource class or subclass.')
+        self.carbon_emission = carbon_emission
+        super().__init__(name=name, energy_meter=energy_meter, smart_contract=smart_contract)
+
+
+class BulkConfiguration:
+    """
+    When using one file configuration for multiple assets
+    """
+    def __init__(self, consumption: [EnergyAssetConfiguration], production: [EnergyAssetConfiguration]):
+        self.consumption = consumption
+        self.production = production
+
+
+def parse_bulk(raw_configuration_file: dict) -> BulkConfiguration:
+    """
+    Read and parse bulk configuration dictionary into structured class instances.
     :param raw_configuration_file: Configuration file parsed as a dictionary.
     :return: Configuration instance
     """
     if not isinstance(raw_configuration_file, dict):
-        print("Config type should be dict. Type found is:")
-        print(type(raw_configuration_file))
-        raise AssertionError
+        raise AssertionError("Configuration json must be deserialized first.")
     is_consuming = 'consumers' in raw_configuration_file
     is_producing = 'producers' in raw_configuration_file
     if not is_consuming and not is_producing:
@@ -83,7 +68,22 @@ def parse(raw_configuration_file: dict) -> Configuration:
 
     consumption = [__parse_item(config) for config in raw_configuration_file['consumers']]
     production = [__parse_item(config) for config in raw_configuration_file['producers']]
-    return Configuration(consumption, production)
+    return BulkConfiguration(consumption, production)
+
+
+def parse_single_asset(raw_configuration_file: dict) -> EnergyAssetConfiguration:
+    """
+    Read and parse single producer or consumer configuration dictionary into structured class instances.
+    :param raw_configuration_file: Configuration file parsed as a dictionary.
+    :return: EnergyConsumerConfiguration or EnergyProducerConfiguration
+    """
+    if not isinstance(raw_configuration_file, dict):
+        raise AssertionError("Configuration json must be deserialized first.")
+    try:
+        configuration = __parse_item(raw_configuration_file)
+    except Exception:
+        raise ConfigurationFileError
+    return configuration
 
 
 def __parse_item(config_item: dict):
@@ -98,10 +98,10 @@ def __parse_item(config_item: dict):
         'name': config_item['name']
     }
     if 'carbon-emission' not in config_item:
-        return ConsumerConfigurationEnergy(**item)
+        return EnergyAssetConfiguration(**item)
     else:
         item['carbon_emission'] = __parse_instance(config_item['carbon-emission'])
-        return ProducerConfiguration(**item)
+        return GreenEnergyProducerConfiguration(**item)
 
 
 def __parse_instance(submodule: dict) -> object:

@@ -1,5 +1,5 @@
 """
-General external data output interfaces
+General & energy related data input interfaces
 """
 import time
 
@@ -7,73 +7,80 @@ from web3 import Web3, HTTPProvider
 from web3.contract import ConciseContract
 from web3.utils.filters import Filter
 
-from core import JSONAble
+from core import ExternalData, EnergyUnit, RawEnergyData, RawCarbonEmissionData, Energy, BlockchainClient
+from core.event_loop import LifeCycle
 
 
-class DataOutput(JSONAble):
+class ExternalDataSource:
     """
-    Data output wrapper
+    Interface to enforce correct return type and standardized naming
     """
-    pass
+    def __init__(self, read_cycle: LifeCycle = LifeCycle.TWELVE_HOURS):
+        self.read_cycle = read_cycle
 
-
-class LogEntry(DataOutput):
-    """
-    Standard for logging data
-    """
-
-    def __init__(self, epoch, value):
+    def read_state(self, *args, **kwargs) -> ExternalData:
         """
-        :param epoch:  Time the value was measured in epoch format
-        :param value:  Measured value
-        """
-        self.epoch = epoch
-        self.value = value
-
-
-class SmartContractClient(DataOutput):
-    """
-    Ethereum-like smart contracts abstraction
-    """
-
-    def is_synced(self) -> bool:
-        """
-        Compares latest block from peers with client's last synced block.
-        :return: Synced status
-        :rtype: bool
-        """
-        raise NotImplementedError
-
-    def call(self, address: str, contract_name: str, method_name: str, password: str, args=None) -> dict:
-        """
-        Calls a method in a smart-contract
-        Sends a transaction to the Blockchain and awaits for mining until a receipt is returned.
-        :param address: Contract address
-        :param contract_name: Name of the contract in contracts
-        :param method_name: Use the same name as found in the contract abi
-        :param password: String of the raw password
-        :param args: Method parameters
-        :return: Transaction receipt
-        :rtype: dict
-        """
-        raise NotImplementedError
-
-    def send(self, address: str, contract_name: str, method_name: str, password: str, args=None) -> dict:
-        """
-        Send a transaction to execute a method in a smart-contract
-        Sends a transaction to the Blockchain and awaits for mining until a receipt is returned.
-        :param address: Contract address
-        :param contract_name: Name of the contract in contracts
-        :param method_name: Use the same name as found in the contract abi
-        :param password: String of the raw password
-        :param args: Method parameters
-        :return: Transaction receipt
-        :rtype: dict
+        Establishes a connection to the integration medium and returns the latest state
+        :rtype: ExternalData
         """
         raise NotImplementedError
 
 
-class EVMSmartContractClient(SmartContractClient):
+class EnergyDataSource(ExternalDataSource):
+
+    def read_state(self, *args, **kwargs) -> RawEnergyData:
+        """
+        Establishes a connection to the integration medium and returns the latest state
+        :rtype: RawEnergyData
+        """
+
+    @staticmethod
+    def to_mwh(energy: int, unit):
+        """
+        Converts energy measured value in predefined unit to Megawatt-Hour
+        :param unit: EnergyUnit
+        :param energy: Value measured at the source
+        :return: Value converted to MWh
+        :rtype: float
+        """
+        convert = lambda x: float(energy) / x
+        return {
+            EnergyUnit.WATT_HOUR: convert(10 ** 6),
+            EnergyUnit.KILOWATT_HOUR: convert(10 ** 3),
+            EnergyUnit.MEGAWATT_HOUR: convert(1),
+            EnergyUnit.GIGAWATT_HOUR: convert(1 * 10 ** -3),
+            EnergyUnit.JOULES: convert(1 * 2.77778 * 10 ** -10),
+        }.get(unit)
+
+    @staticmethod
+    def to_wh(energy: int, unit: EnergyUnit):
+        """
+        Converts energy measured value in predefined unit to Watt-Hour
+        :param unit: EnergyUnit
+        :param energy: Value measured at the source
+        :return: Value converted to MWh
+        :rtype: int
+        """
+        convert = lambda x: int(float(energy * x))
+        return {
+            EnergyUnit.WATT_HOUR: convert(1),
+            EnergyUnit.KILOWATT_HOUR: convert(10 ** 3),
+            EnergyUnit.MEGAWATT_HOUR: convert(10 ** 6),
+            EnergyUnit.GIGAWATT_HOUR: convert(10 ** 9),
+            EnergyUnit.JOULES: convert(1 * 2.77778 * 10 ** -1),
+        }.get(unit)
+
+
+class CarbonEmissionDataSource(ExternalDataSource):
+
+    def read_state(self, *args, **kwargs) -> RawCarbonEmissionData:
+        """
+        Establishes a connection to the integration medium and returns the latest state
+        :rtype: RawCarbonEmissionData
+        """
+
+
+class EVMSmartContractClient(BlockchainClient):
     """
     General EVM based blockchain client smart contract integration.
     Tested on:
@@ -114,7 +121,6 @@ class EVMSmartContractClient(SmartContractClient):
         :param args: Arguments passed when calling the method. Must be in the same order as in the abi.
         :return: The transaction receipt after mining is confirmed.
         """
-        # TODO: Events parsing : myContract.events.myEvent().processReceipt(receipt)
         # TODO: Check for more elegant way of verifying the tx receipt
         if not self.is_synced():
             raise ConnectionError('Client is not synced to the last block.')
@@ -226,3 +232,9 @@ class EVMSmartContractClient(SmartContractClient):
         event_logs = usn_filter.get_all_entries()
         # sessionId = Web3.toHex(event_logs[-1]['transactionHash'])
         return event_logs
+
+    def mint(self, energy: Energy) -> dict:
+        """
+        Mint the measured energy in the blockchain smart-contract
+        """
+        raise NotImplementedError

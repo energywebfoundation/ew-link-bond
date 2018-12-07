@@ -22,6 +22,7 @@ Simply install it as a dependency with `pip3 install ew-link-bond`,
 #### Features Roadmap
 - General Smart-Contract event listener
 - Remote Logging with some tool (maybe Data Dog)
+- Message Queue for off-line resilience
 - Accept YAML to generate JSON for more human readable config
 - Merkle tree proofs for collected data. Check [precise proofs](https://medium.com/centrifuge/introducing-precise-proofs-create-validate-field-level-merkle-proofs-a31af9220df0) and [typescript implementation](https://github.com/slockit/precise-proofs).
     - Fiel-level validation

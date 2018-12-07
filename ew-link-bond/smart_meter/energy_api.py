@@ -7,7 +7,8 @@ import datetime
 import json
 import requests
 
-from core.input import EnergyData, Device, EnergyDataSource
+from core.integration import EnergyDataSource
+from core import RawEnergyData, EnergyAsset
 
 
 class BondAPIv1(EnergyDataSource):
@@ -28,14 +29,14 @@ class BondAPIv1(EnergyDataSource):
         self.api_url = '{}/{}/{}'.format(base_url, source, device_id)
         self.auth = (user, password)
 
-    def read_state(self, start=None, end=None) -> EnergyData:
+    def read_state(self, start=None, end=None) -> RawEnergyData:
         # raw
         raw, data, measurement_list = self._reach_source(self.api_url, start, end)
         # device
         device_meta = data[-1]['device']
-        device = Device(**device_meta)
+        device = EnergyAsset(**device_meta)
         # accumulated energy in Wh
-        if device.is_accumulated:
+        if device.is_value_accumulated:
             energy = self.to_wh(measurement_list[-1]['energy'], device.energy_unit)
         else:
             energy = self.to_wh(sum(i['energy'] for i in measurement_list), device.energy_unit)
@@ -45,8 +46,8 @@ class BondAPIv1(EnergyDataSource):
         #  measurement epoch
         measurement_time = datetime.datetime.strptime(measurement_list[-1]['measurement_time'], "%Y-%m-%dT%H:%M:%S%z")
         measurement_epoch = calendar.timegm(measurement_time.timetuple())
-        return EnergyData(device=device, access_epoch=access_epoch, raw=raw, energy=energy,
-                          measurement_epoch=measurement_epoch)
+        return RawEnergyData(asset=device, access_epoch=access_epoch, raw=raw, energy=energy,
+                             measurement_epoch=measurement_epoch)
 
     def _reach_source(self, url, start=None, end=None, have_next=False) -> (str, dict):
         marginal_query = None
