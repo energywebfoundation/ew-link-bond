@@ -64,15 +64,9 @@ Simply install it as a dependency with `pip3 install ew-link-bond`,
 
 The library is organized into `abstract`, `input` and `output`. Abstract defines all classes and interfaces to be inherited and implemented by input and output classes. As the names imply the software consists of loading and reading one or many input modules and write formatted data to output modules.
 
-### Core Classes
-
-The core library comes with an object-oriented structure to standardize and support the extension of the input and output modules, thus extending the system functionalities and ability to communicate with other Energy Assets.
-
-![Core Library Class Diagram](https://github.com/energywebfoundation/ewf-link-bond/blob/master/docs/media/core-class-diagram.png)
-
 Asyncio event loop abstraction:
 
-![Event Loop](https://github.com/energywebfoundation/ewf-link-bond/blob/master/docs/media/threads.png)
+![Event Loop](https://github.com/energywebfoundation/ew-link-bond/blob/master/docs/media/threads.jpg)
 
 ### Data Access Object
 
