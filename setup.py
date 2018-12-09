@@ -5,13 +5,13 @@ https://pypi.org/classifiers/
 import setuptools
 
 setuptools.setup(
-    name="ew-link-bond",
-    version="0.3.0",
+    name="energyweb",
+    version="0.3.2",
     author="github.com/cerealkill",
     author_email="paul.depraz@energyweb.org",
-    description="Energy data interface for blockchain smart contracts",
-    long_description="Library designed to support the creation of interfaces for reading, parsing and writing energy \
-    industry related data to and from the blockchain. \n\
+    description="Energy utility data interface for blockchain smart contracts",
+    long_description="Library designed to support the creation of applications for reading, parsing and writing \
+    electrical utility related data to and from the blockchain. \n\
     Please visit https://github.com/energywebfoundation/ew-link-bond for more.",
     long_description_content_type="text/markdown",
     url="https://github.com/energywebfoundation/ew-link-bond",
