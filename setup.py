@@ -13,9 +13,8 @@ setuptools.setup(
     long_description="Library designed to support the creation of applications for reading, parsing and writing \
     electrical utility related data to and from the blockchain. \n\
     Please visit https://github.com/energywebfoundation/ew-link-bond for more.",
-    long_description_content_type="text/markdown",
     url="https://github.com/energywebfoundation/ew-link-bond",
-    packages=setuptools.find_packages(where='./energyweb', exclude=["docs", "tests"]),
+    packages=setuptools.find_packages(exclude=["docs", "tests"]),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",
