@@ -5,7 +5,7 @@ Configuration file parser and app descriptor
 """
 import importlib
 
-from core.integration import EnergyDataSource, CarbonEmissionDataSource, SmartContractClient
+from energyweb.integration import EnergyDataSource, CarbonEmissionDataSource, EVMSmartContractClient
 
 
 class ConfigurationFileError(Exception):
@@ -22,7 +22,7 @@ class EnergyAssetConfiguration:
     """
     Represent Energy Asset configurations for producer and consumers
     """
-    def __init__(self, name: str, energy_meter: EnergyDataSource, smart_contract: SmartContractClient):
+    def __init__(self, name: str, energy_meter: EnergyDataSource, smart_contract: EVMSmartContractClient):
         if not isinstance(energy_meter, EnergyDataSource):
             raise ConfigurationFileError('Energy_meter must be of an EnergyDataSource class or subclass.')
         if len(name) < 2:
@@ -37,7 +37,7 @@ class GreenEnergyProducerConfiguration(EnergyAssetConfiguration):
     Represents special case of energy producer
     """
     def __init__(self, name: str, energy_meter: EnergyDataSource, carbon_emission: CarbonEmissionDataSource,
-                 smart_contract: SmartContractClient):
+                 smart_contract: EVMSmartContractClient):
         if not isinstance(carbon_emission, CarbonEmissionDataSource):
             raise ConfigurationFileError('Carbon_emission must be of an CarbonEmissionDataSource class or subclass.')
         self.carbon_emission = carbon_emission

@@ -6,7 +6,7 @@ import setuptools
 
 setuptools.setup(
     name="energyweb",
-    version="0.3.2",
+    version="0.3.3",
     author="github.com/cerealkill",
     author_email="paul.depraz@energyweb.org",
     description="Energy utility data interface for blockchain smart contracts",
@@ -15,7 +15,7 @@ setuptools.setup(
     Please visit https://github.com/energywebfoundation/ew-link-bond for more.",
     long_description_content_type="text/markdown",
     url="https://github.com/energywebfoundation/ew-link-bond",
-    packages=setuptools.find_packages(exclude=["docs", "tests"]),
+    packages=setuptools.find_packages(where='./energyweb', exclude=["docs", "tests"]),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",

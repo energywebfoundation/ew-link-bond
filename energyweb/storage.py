@@ -8,7 +8,7 @@ import pickle
 import hashlib
 import datetime
 
-from core import base58, Serializable
+from energyweb import base58, Serializable
 
 
 class ChainFile:

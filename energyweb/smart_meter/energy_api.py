@@ -7,8 +7,8 @@ import datetime
 import json
 import requests
 
-from core.integration import EnergyDataSource
-from core import RawEnergyData, EnergyAsset
+from energyweb.integration import EnergyDataSource
+from energyweb import RawEnergyData, EnergyAsset
 
 
 class BondAPIv1(EnergyDataSource):

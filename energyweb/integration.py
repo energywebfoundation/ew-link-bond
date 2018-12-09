@@ -7,17 +7,13 @@ from web3 import Web3, HTTPProvider
 from web3.contract import ConciseContract
 from web3.utils.filters import Filter
 
-from core import ExternalData, EnergyUnit, RawEnergyData, RawCarbonEmissionData, Energy, BlockchainClient
-from core.event_loop import LifeCycle
+from energyweb import ExternalData, EnergyUnit, RawEnergyData, RawCarbonEmissionData, Energy, BlockchainClient
 
 
 class ExternalDataSource:
     """
     Interface to enforce correct return type and standardized naming
     """
-    def __init__(self, read_cycle: LifeCycle = LifeCycle.TWELVE_HOURS):
-        self.read_cycle = read_cycle
-
     def read_state(self, *args, **kwargs) -> ExternalData:
         """
         Establishes a connection to the integration medium and returns the latest state
@@ -27,6 +23,9 @@ class ExternalDataSource:
 
 
 class EnergyDataSource(ExternalDataSource):
+    """
+    Energy endpoint data interface
+    """
 
     def read_state(self, *args, **kwargs) -> RawEnergyData:
         """
@@ -72,6 +71,9 @@ class EnergyDataSource(ExternalDataSource):
 
 
 class CarbonEmissionDataSource(ExternalDataSource):
+    """
+    Carbon emission endpoint data interface
+    """
 
     def read_state(self, *args, **kwargs) -> RawCarbonEmissionData:
         """

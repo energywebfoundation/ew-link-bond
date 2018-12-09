@@ -7,8 +7,8 @@ import time
 import requests
 
 from xml.etree import ElementTree
-from core.integration import EnergyDataSource
-from core import EnergyUnit, RawEnergyData, EnergyAsset
+from energyweb.integration import EnergyDataSource
+from energyweb import EnergyUnit, RawEnergyData, EnergyAsset
 
 
 class DataLoggerV1(EnergyDataSource):

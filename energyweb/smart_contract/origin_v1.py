@@ -1,11 +1,11 @@
 """
 Library containing the Certificate of Origin v1.0 integration classes
 """
-from core import Energy
-from core.integration import EVMSmartContractClient
-from smart_contract.origin.consumer_v1 import contract as consumer_v1
-from smart_contract.origin.producer_v1 import contract as producer_v1
-from smart_contract.origin.asset_reg_v1 import contract as asset_reg_v1
+from energyweb import Energy
+from energyweb.integration import EVMSmartContractClient
+from energyweb.smart_contract.origin.consumer_v1 import contract as consumer_v1
+from energyweb.smart_contract.origin.producer_v1 import contract as producer_v1
+from energyweb.smart_contract.origin.asset_reg_v1 import contract as asset_reg_v1
 
 
 class ProducedEnergy(Energy):
