@@ -17,7 +17,7 @@ __name__ = 'energyweb'
 __author__ = 'Paul Depraz <github.com/cerealkill>'
 __repository__ = 'github.com/energywebfoundation/ew-link-bond'
 __status__ = "pre-alpha"
-__version__ = "0.3.3"
+__version__ = "0.3.4"
 __date__ = "09 December 2018"
 
 smart_contract = energyweb.smart_contract
