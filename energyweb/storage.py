@@ -8,14 +8,13 @@ import pickle
 import hashlib
 import datetime
 
-from core import LocalFileData, base58
+from energyweb import base58, Serializable
 
 
 class ChainFile:
     """
     List element
     """
-
     def __init__(self, file: str, timestamp: datetime.datetime):
         self.file = file
         self.timestamp = timestamp
@@ -37,7 +36,6 @@ class DiskStorage:
     """
     Saves a pickle with the data in chain format.
     """
-
     def __init__(self, chain_file_name: str, path_to_files: str):
         """
         :param chain_file_name:
@@ -65,7 +63,7 @@ class DiskStorage:
             raise AttributeError
         self.__chain_append(chain_link)
 
-    def add_to_chain(self, data: LocalFileData) -> str:
+    def add_to_chain(self, data: Serializable) -> str:
         """
         Add new file to chain.
         :param data: Data to store

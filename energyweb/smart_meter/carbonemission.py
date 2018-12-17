@@ -3,10 +3,10 @@ Library containing the implementations of CO2 oracles integration classes
 """
 import calendar
 import datetime
-
 import requests
 
-from core.input import CarbonEmissionDataSource, CarbonEmissionData
+from energyweb.integration import CarbonEmissionDataSource
+from energyweb import RawCarbonEmissionData
 
 
 class WattimeV1(CarbonEmissionDataSource):
@@ -25,9 +25,9 @@ class WattimeV1(CarbonEmissionDataSource):
         self.ba = ba
         self.hours_from_now = hours_from_now
 
-    def read_state(self) -> CarbonEmissionData:
+    def read_state(self) -> RawCarbonEmissionData:
         """
-        Reach wattime api, parse and convert to CarbonEmissionData.
+        Reach wattime api, parse and convert to RawCarbonEmissionData.
         """
         auth_token = self.get_auth_token()
         # 2. Fetch marginal data
@@ -39,7 +39,7 @@ class WattimeV1(CarbonEmissionDataSource):
         access_epoch = calendar.timegm(now.timetuple())
         measurement_timestamp = datetime.datetime.strptime(raw['timestamp'], "%Y-%m-%dT%H:%M:%SZ")
         measurement_epoch = calendar.timegm(measurement_timestamp.timetuple())
-        return CarbonEmissionData(access_epoch, raw, accumulated_co2, measurement_epoch)
+        return RawCarbonEmissionData(access_epoch, raw, accumulated_co2, measurement_epoch)
 
     def get_auth_token(self) -> str:
         """
@@ -119,9 +119,9 @@ class WattimeV2(CarbonEmissionDataSource):
         self.api_url = 'https://api2.watttime.org/v2test/'
         self.ba = ba
 
-    def read_state(self) -> CarbonEmissionData:
+    def read_state(self) -> RawCarbonEmissionData:
         """
-        Reach wattime api, parse and convert to CarbonEmissionData.
+        Reach wattime api, parse and convert to RawCarbonEmissionData.
         """
         auth_token = self.get_auth_token()
         # 2. Fetch marginal data
@@ -133,7 +133,7 @@ class WattimeV2(CarbonEmissionDataSource):
         access_epoch = calendar.timegm(now.timetuple())
         measurement_timestamp = now
         measurement_epoch = calendar.timegm(measurement_timestamp.timetuple())
-        return CarbonEmissionData(access_epoch, raw, accumulated_co2, measurement_epoch)
+        return RawCarbonEmissionData(access_epoch, raw, accumulated_co2, measurement_epoch)
 
     def get_auth_token(self) -> str:
         """

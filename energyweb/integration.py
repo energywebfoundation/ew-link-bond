@@ -1,15 +1,88 @@
 """
-Library containing the implementations of general purpose smart-contract integration classes
+General & energy related data input interfaces
 """
 import time
 
-from web3 import HTTPProvider, Web3
+from web3 import Web3, HTTPProvider
 from web3.contract import ConciseContract
+from web3.utils.filters import Filter
 
-from core.output import SmartContractClient
+from energyweb import ExternalData, EnergyUnit, RawEnergyData, RawCarbonEmissionData, Energy, BlockchainClient
 
 
-class GeneralSmartContractClient(SmartContractClient):
+class ExternalDataSource:
+    """
+    Interface to enforce correct return type and standardized naming
+    """
+    def read_state(self, *args, **kwargs) -> ExternalData:
+        """
+        Establishes a connection to the integration medium and returns the latest state
+        :rtype: ExternalData
+        """
+        raise NotImplementedError
+
+
+class EnergyDataSource(ExternalDataSource):
+    """
+    Energy endpoint data interface
+    """
+
+    def read_state(self, *args, **kwargs) -> RawEnergyData:
+        """
+        Establishes a connection to the integration medium and returns the latest state
+        :rtype: RawEnergyData
+        """
+
+    @staticmethod
+    def to_mwh(energy: int, unit):
+        """
+        Converts energy measured value in predefined unit to Megawatt-Hour
+        :param unit: EnergyUnit
+        :param energy: Value measured at the source
+        :return: Value converted to MWh
+        :rtype: float
+        """
+        convert = lambda x: float(energy) / x
+        return {
+            EnergyUnit.WATT_HOUR: convert(10 ** 6),
+            EnergyUnit.KILOWATT_HOUR: convert(10 ** 3),
+            EnergyUnit.MEGAWATT_HOUR: convert(1),
+            EnergyUnit.GIGAWATT_HOUR: convert(1 * 10 ** -3),
+            EnergyUnit.JOULES: convert(1 * 2.77778 * 10 ** -10),
+        }.get(unit)
+
+    @staticmethod
+    def to_wh(energy: int, unit: EnergyUnit):
+        """
+        Converts energy measured value in predefined unit to Watt-Hour
+        :param unit: EnergyUnit
+        :param energy: Value measured at the source
+        :return: Value converted to MWh
+        :rtype: int
+        """
+        convert = lambda x: int(float(energy * x))
+        return {
+            EnergyUnit.WATT_HOUR: convert(1),
+            EnergyUnit.KILOWATT_HOUR: convert(10 ** 3),
+            EnergyUnit.MEGAWATT_HOUR: convert(10 ** 6),
+            EnergyUnit.GIGAWATT_HOUR: convert(10 ** 9),
+            EnergyUnit.JOULES: convert(1 * 2.77778 * 10 ** -1),
+        }.get(unit)
+
+
+class CarbonEmissionDataSource(ExternalDataSource):
+    """
+    Carbon emission endpoint data interface
+    """
+
+    def read_state(self, *args, **kwargs) -> RawCarbonEmissionData:
+        """
+        Establishes a connection to the integration medium and returns the latest state
+        :rtype: RawCarbonEmissionData
+        """
+
+
+class EVMSmartContractClient(BlockchainClient):
     """
     General EVM based blockchain client smart contract integration.
     Tested on:
@@ -50,7 +123,6 @@ class GeneralSmartContractClient(SmartContractClient):
         :param args: Arguments passed when calling the method. Must be in the same order as in the abi.
         :return: The transaction receipt after mining is confirmed.
         """
-        # TODO: Events parsing : myContract.events.myEvent().processReceipt(receipt)
         # TODO: Check for more elegant way of verifying the tx receipt
         if not self.is_synced():
             raise ConnectionError('Client is not synced to the last block.')
@@ -132,3 +204,39 @@ class GeneralSmartContractClient(SmartContractClient):
                 break
             time.sleep(self.SECONDS_BETWEEN_RETRIES)
         return tx_receipt
+
+    def create_event_filter(self, contract_name: str, event_name: str, block_count: int = 1000) -> Filter:
+        """
+        Create Filter on the client, the client must have the option enabled or it might fail.
+        :param contract_name: Contract key as in the contracts list used to instantiate this class.
+        :param event_name: Like written in the abi
+        :param block_count: Number of blocks prior to the latest to start filtering from
+        :return: Filter
+        """
+        contract = self.contracts[contract_name]
+        contract_instance = self.w3.eth.contract(
+            abi=contract['abi'],
+            address=self.w3.toChecksumAddress(contract['address']),
+            bytecode=contract['bytecode'])
+        latest_block = self.w3.eth.getBlock('latest')
+        return getattr(contract_instance.events, event_name)().createFilter(fromBlock=latest_block.number - block_count)
+
+    def create_event_trigger(self, contract_name: str, event_name: str, block_count: int = 1000) -> dict:
+        """
+        Todo: Fix this to get the blocks and check for new events, demands memory or persistence
+        Create Filter on the client, the client must have the option enabled or it might fail.
+        :param contract_name: Contract key as in the contracts list used to instantiate this class.
+        :param event_name: Like written in the abi
+        :param block_count: Number of blocks prior to the latest to start filtering from
+        :return: Filter
+        """
+        usn_filter = self.create_event_filter(contract_name=contract_name, event_name=event_name, block_count=block_count)
+        event_logs = usn_filter.get_all_entries()
+        # sessionId = Web3.toHex(event_logs[-1]['transactionHash'])
+        return event_logs
+
+    def mint(self, energy: Energy) -> dict:
+        """
+        Mint the measured energy in the blockchain smart-contract
+        """
+        raise NotImplementedError

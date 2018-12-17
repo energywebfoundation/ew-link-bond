@@ -107,3 +107,6 @@ venv.bak/
 
 ./tests/tobalaba
 ./tests/prosumer.json
+
+.idea
+/ew-link-bond/.idea
