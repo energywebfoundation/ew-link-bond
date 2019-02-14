@@ -66,7 +66,7 @@ The library is organized into `abstract`, `input` and `output`. Abstract defines
 
 Asyncio event loop abstraction:
 
-![Event Loop](https://github.com/energywebfoundation/ew-link-bond/blob/master/docs/media/threads.jpg)
+![Event Loop](https://github.com/energywebfoundation/ew-link-bond/raw/master/docs/media/threads.jpg)
 
 ### Data Access Object
 
