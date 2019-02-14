@@ -80,7 +80,7 @@ __Dispatcher__ module is helper for handling asynchronous non I/O blocking threa
 
 Event loop abstraction:
 
-![Event Loop](https://github.com/energywebfoundation/ew-link-bond/blob/master/docs/media/threads.jpg)
+![Event Loop](https://github.com/energywebfoundation/ew-link-bond/raw/master/docs/media/threads.jpg)
 
 ## Example App
 ```python
