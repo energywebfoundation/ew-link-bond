@@ -1,6 +1,5 @@
 """
-Data Access Object
-https://en.wikipedia.org/wiki/Data_access_object
+__Storage__ supports EWF's Origin release A log storage, designed to record a sequence of _off-chain_ files by updating the previous file contents SHA hash with the next. It is particularly useful to enforce data integrity, by comparing the sequence of raw smart-meter readings with the sequence registered _on-chain_.
 """
 import os
 import json
@@ -67,7 +66,7 @@ class DiskStorage:
         """
         Add new file to chain.
         :param data: Data to store
-        :return: Base58 hash string
+        :return: File name string
         """
         data_file_name = self.__save_file(data)
         chain_data = ChainFile(data_file_name, datetime.datetime.now())

@@ -1,8 +1,7 @@
 """
-Asynchronous watcher event loop threads
+Asynchronous event watcher loop
 """
 import asyncio
-from datetime import datetime
 from enum import IntEnum
 
 
@@ -72,53 +71,3 @@ class EventLoop:
             self.loop.run_forever()
         except KeyboardInterrupt:
             self.loop.close()
-
-
-class App(EventLoop):
-    """
-    General application abstraction
-    """
-
-    def prepare(self):
-        pass
-
-    def configure(self):
-        raise NotImplementedError
-
-    def finish(self):
-        pass
-
-    def run(self):
-        self.prepare()
-        self.configure()
-        super().run()
-        self.finish()
-
-
-if __name__ == '__main__':
-
-    class MyTask(Task):
-        """
-        Example Task
-        """
-        def coroutine(self):
-            print('Task {}: {}\n'.format(self.interval, datetime.now()))
-
-
-    class MyApp(App):
-        """
-        Example Application
-        """
-        def prepare(self):
-            print('{} Prepared'.format(self.__class__.__name__))
-
-        def configure(self):
-            t1 = MyTask(interval=LifeCycle.FIVE_SECONDS)
-            t2 = MyTask(interval=LifeCycle.ONE_MINUTE, is_eager=False)
-            [self.add_task(t) for t in [t2, t1]]
-
-        def finish(self):
-            print('{} Finished'.format(self.__class__.__name__))
-
-    app = MyApp()
-    app.run()

@@ -5,8 +5,7 @@ import calendar
 import datetime
 import requests
 
-from energyweb.integration import CarbonEmissionDataSource
-from energyweb import RawCarbonEmissionData
+from energyweb import RawCarbonEmissionData, CarbonEmissionDataSource
 
 
 class WattimeV1(CarbonEmissionDataSource):

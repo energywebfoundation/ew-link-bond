@@ -1,11 +1,24 @@
 """
-core.config
-
 Configuration file parser and app descriptor
 """
 import importlib
+from collections import namedtuple
+from enum import Enum
 
-from energyweb.integration import EnergyDataSource, CarbonEmissionDataSource, EVMSmartContractClient
+from ruamel.yaml import YAML
+
+from energyweb import CarbonEmissionDataSource
+from energyweb.eds import EnergyDataSource
+from energyweb.smart_contract import EVMSmartContractClient
+
+Module = namedtuple('Module', ['module', 'class_name', 'parameters'])
+
+
+class MODULES(Enum):
+    OriginAPIv1 = Module('energyweb.smart_meter.energy_api', 'OriginAPIv1', {})
+    OriginAPIv1Test = Module('energyweb.smart_meter.energy_api', 'OriginAPIv1', {'url': '', 'source': 'consumed', 'device_id': 0})
+    ConsumerTask = Module('energyweb.smart_meter.energy_api', 'OriginAPIv1', {})
+    ProducerTask = Module('energyweb.smart_meter.energy_api', 'OriginAPIv1', {})
 
 
 class ConfigurationFileError(Exception):
@@ -22,14 +35,14 @@ class EnergyAssetConfiguration:
     """
     Represent Energy Asset configurations for producer and consumers
     """
-    def __init__(self, name: str, energy_meter: EnergyDataSource, smart_contract: EVMSmartContractClient):
+    def __init__(self, name: str, energy_meter: EnergyDataSource, asset: EVMSmartContractClient):
         if not isinstance(energy_meter, EnergyDataSource):
             raise ConfigurationFileError('Energy_meter must be of an EnergyDataSource class or subclass.')
         if len(name) < 2:
             raise ConfigurationFileError('Name must be longer than two characters.')
         self.name = name
         self.meter = energy_meter
-        self.smart_contract = smart_contract
+        self.asset = asset
 
 
 class GreenEnergyProducerConfiguration(EnergyAssetConfiguration):
@@ -37,50 +50,65 @@ class GreenEnergyProducerConfiguration(EnergyAssetConfiguration):
     Represents special case of energy producer
     """
     def __init__(self, name: str, energy_meter: EnergyDataSource, carbon_emission: CarbonEmissionDataSource,
-                 smart_contract: EVMSmartContractClient):
+                 asset: EVMSmartContractClient):
         if not isinstance(carbon_emission, CarbonEmissionDataSource):
             raise ConfigurationFileError('Carbon_emission must be of an CarbonEmissionDataSource class or subclass.')
         self.carbon_emission = carbon_emission
-        super().__init__(name=name, energy_meter=energy_meter, smart_contract=smart_contract)
+        super().__init__(name=name, energy_meter=energy_meter, asset=asset)
 
 
-class BulkConfiguration:
+class BondConfiguration:
     """
-    When using one file configuration for multiple assets
+    Bond configuration file format
+    :version v0.3.7
+        energyweb: 1.0
+        info:
+          title: App Title
+          description: My very nice energyweb embedded app
+          version: 1.0 alpha
+        config:
+          debugger: on
+          verbosity: low
+        tasks:
     """
-    def __init__(self, consumption: [EnergyAssetConfiguration], production: [EnergyAssetConfiguration]):
-        self.consumption = consumption
-        self.production = production
+    class AppInfo:
+        def __init__(self, title: str, description: str, version: str):
+            self.title = title
+            self.description = description
+            self.version = version
+
+    class AppConfig:
+        def __init__(self, debugger: str, verbosity: str, **kwargs):
+            self.debugger = debugger
+            self.verbosity = verbosity
+            self.__dict__.update(kwargs)
+
+    class Submodule:
+        def __init__(self, module: str, **kwargs):
+            self.module = module
+            self.__dict__.update(kwargs)
+
+    def __init__(self, energyweb: str, info: dict, config: dict, tasks: [dict]):
+        if len(tasks) < 1:
+            raise ConfigurationFileError('Should contain at least one valid task.')
+        self.energyweb = energyweb
+        self.tasks = tasks
+        self.config = self.AppConfig(config)
+        self.info = self.AppInfo(info)
 
 
-def parse_bulk(raw_configuration_file: dict) -> BulkConfiguration:
+def parse_bond_app(configuration_file_path: str) -> BondConfiguration:
     """
-    Read and parse bulk configuration dictionary into structured class instances.
-    :param raw_configuration_file: Configuration file parsed as a dictionary.
-    :return: Configuration instance
+    :param configuration_file_path: Configuration file parsed as a dictionary.
+    :return: BondConfiguration
     """
-    if not isinstance(raw_configuration_file, dict):
-        raise AssertionError("Configuration json must be deserialized first.")
-    is_consuming = 'consumers' in raw_configuration_file
-    is_producing = 'producers' in raw_configuration_file
-    if not is_consuming and not is_producing:
-        raise ConfigurationFileError
-
-    consumption = [__parse_item(config) for config in raw_configuration_file['consumers']]
-    production = [__parse_item(config) for config in raw_configuration_file['producers']]
-    return BulkConfiguration(consumption, production)
-
-
-def parse_single_asset(raw_configuration_file: dict) -> EnergyAssetConfiguration:
-    """
-    Read and parse single producer or consumer configuration dictionary into structured class instances.
-    :param raw_configuration_file: Configuration file parsed as a dictionary.
-    :return: EnergyConsumerConfiguration or EnergyProducerConfiguration
-    """
-    if not isinstance(raw_configuration_file, dict):
-        raise AssertionError("Configuration json must be deserialized first.")
+    yaml = YAML()  # default, if not specfied, is 'rt' (round-trip)
     try:
-        configuration = __parse_item(raw_configuration_file)
+        config = yaml.load(open(configuration_file_path))
+        # TODO: Continue from here
+        version = raw_configuration_file['bond_version']
+        tasks = [__parse_instance(task) for task in raw_configuration_file['tasks']]
+        configuration = BondConfiguration(bond_version=version, tasks=tasks)
     except Exception:
         raise ConfigurationFileError
     return configuration

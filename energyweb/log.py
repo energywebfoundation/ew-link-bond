@@ -3,7 +3,7 @@ import os
 
 import colorlog
 
-from energyweb import Energy, RawEnergyData
+from energyweb import RawEnergyData
 from energyweb.config import EnergyAssetConfiguration
 
 
@@ -15,7 +15,7 @@ class Logger:
     def __init__(self, log_name: str, store: str = None, enable_debug: bool = False):
         """
         :param log_name: File name for the log. Will create log entries and file name ie. my_app.log
-        :param store: Path to folder where the log files will be stored in disk. Please note that it can get full.
+        :param store: Path to folder where the log files will be stored in disk. Please note that disk can get full and prevent OS boot.
         :param enable_debug: Enabling debug creates a log for errors. Needs storage. Please manually delete it.
         """
 
@@ -52,6 +52,7 @@ class EnergyLogger(Logger):
     """
     Energy data logger implementation.
     Read configuration, reach the provided smart meters, send to blockchain, log the results.
+    TODO: Transform into an App or Task
     """
     def __init__(self, asset: EnergyAssetConfiguration, store: str = None, enable_debug: bool = False):
         """
@@ -80,7 +81,7 @@ class EnergyLogger(Logger):
         try:
             raw_energy = self.asset.meter.read_state()
             energy = self.__transform(raw_energy)
-            tx_receipt = self.asset.smart_contract.mint(energy)
+            tx_receipt = self.asset.asset.mint(energy)
             block_number = str(tx_receipt['blockNumber'])
             self.console.info(success_msg.format(raw_energy, block_number))
             return raw_energy, energy

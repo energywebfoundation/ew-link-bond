@@ -9,16 +9,19 @@ Bond - Your favorite library for logging energy data on the blockchain
 """
 import inspect
 import datetime
+from datetime import datetime
 from enum import IntEnum
 
 import energyweb
+from energyweb import LifeCycle
+from energyweb.dispatcher import EventLoop, Task, LifeCycle
 
 __name__ = 'energyweb'
 __author__ = 'Paul Depraz <github.com/cerealkill>'
 __repository__ = 'github.com/energywebfoundation/ew-link-bond'
 __status__ = "pre-alpha"
-__version__ = "0.3.6"
-__date__ = "09 December 2018"
+__version__ = "0.3.7"
+__date__ = "14 December 2018"
 
 smart_contract = energyweb.smart_contract
 smart_meter = energyweb.smart_meter
@@ -131,16 +134,11 @@ class RawCarbonEmissionData(ExternalData):
         ExternalData.__init__(self, access_epoch, raw)
 
 
-class Energy(Serializable):
-    """
-    Represents energy measured and converted, ready to be logged and minted in the blockchain
-    """
-
-
 class GreenEnergy(ExternalData):
     """
     Green energy data read from external data sources of energy and carbon emissions
     """
+
     def __init__(self, energy: RawEnergyData, carbon_emission: RawCarbonEmissionData):
         self.energy = energy
         self.carbon_emission = carbon_emission
@@ -167,6 +165,7 @@ class EnergyAsset(Serializable):
     """
     Energy asset device abstraction. Can be smart-meters, battery controllers, inverters, gateways.
     """
+
     def __init__(self, manufacturer, model, serial_number, latitude, longitude, energy_unit, is_value_accumulated):
         """
         :param manufacturer: EnergyAsset Manufacturer
@@ -227,8 +226,88 @@ class BlockchainClient:
         """
         raise NotImplementedError
 
-    def mint(self, energy: Energy) -> dict:
+    def mint(self, energy: RawEnergyData) -> dict:
         """
         Mint the measured energy in the blockchain smart-contract
         """
         raise NotImplementedError
+
+
+class ExternalDataSource:
+    """
+    Interface to enforce correct return type and standardized naming
+    """
+    def read_state(self, *args, **kwargs) -> ExternalData:
+        """
+        Establishes a connection to the integration medium and returns the latest state
+        :rtype: ExternalData
+        """
+        raise NotImplementedError
+
+
+class CarbonEmissionDataSource(ExternalDataSource):
+    """
+    Carbon emission endpoint data interface
+    """
+
+    def read_state(self, *args, **kwargs) -> RawCarbonEmissionData:
+        """
+        Establishes a connection to the integration medium and returns the latest state
+        :rtype: RawCarbonEmissionData
+        """
+
+
+class App(EventLoop):
+    """
+    General application abstraction
+    """
+
+    def prepare(self):
+        pass
+
+    def configure(self):
+        raise NotImplementedError
+
+    def finish(self):
+        pass
+
+    def run(self):
+        self.prepare()
+        self.configure()
+        super().run()
+        self.finish()
+
+
+"""
+Test loop
+"""
+if __name__ == '__main__':
+
+    class MyTask(Task):
+        """
+        Example Task
+        """
+
+        def coroutine(self):
+            print('Task {}: {}\n'.format(self.interval, datetime.now()))
+
+
+    class MyApp(App):
+        """
+        Example Application
+        """
+
+        def prepare(self):
+            print('{} Prepared'.format(self.__class__.__name__))
+
+        def configure(self):
+            t1 = MyTask(interval=LifeCycle.FIVE_SECONDS)
+            t2 = MyTask(interval=LifeCycle.ONE_MINUTE, is_eager=False)
+            [self.add_task(t) for t in [t2, t1]]
+
+        def finish(self):
+            print('{} Finished'.format(self.__class__.__name__))
+
+
+    app = MyApp()
+    app.run()

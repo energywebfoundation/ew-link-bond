@@ -2,7 +2,7 @@
 Library containing the Certificate of Origin v1.0 integration classes
 """
 from energyweb import Energy
-from energyweb.integration import EVMSmartContractClient
+from energyweb.smart_contract import EVMSmartContractClient
 from energyweb.smart_contract.origin.consumer_v1 import contract as consumer_v1
 from energyweb.smart_contract.origin.producer_v1 import contract as producer_v1
 from energyweb.smart_contract.origin.asset_reg_v1 import contract as asset_reg_v1
