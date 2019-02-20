@@ -11,7 +11,8 @@ Bond - Your favorite library for logging energy data on the blockchain
 from energyweb.dispatcher import EventLoop, Task, LifeCycle
 from energyweb.eds import EnergyUnit, EnergyData, EnergyDevice
 from energyweb.carbonemission import CarbonEmissionData
-from energyweb.interfaces import App
+from energyweb.interfaces import App, ExternalData, BlockchainClient
+from energyweb.smart_contract.interfaces import EVMSmartContractClient
 
 __name__ = 'energyweb'
 __author__ = 'Paul Depraz <github.com/cerealkill>'

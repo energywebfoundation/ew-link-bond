@@ -1,14 +1,13 @@
 """
 Library containing the Certificate of Origin v1.0 integration classes
 """
-from energyweb import Energy
-from energyweb.smart_contract import EVMSmartContractClient
+from energyweb import EnergyData, EVMSmartContractClient
 from energyweb.smart_contract.origin.consumer_v1 import contract as consumer_v1
 from energyweb.smart_contract.origin.producer_v1 import contract as producer_v1
 from energyweb.smart_contract.origin.asset_reg_v1 import contract as asset_reg_v1
 
 
-class ProducedEnergy(Energy):
+class ProducedEnergy(EnergyData):
     """
     Helper for coo smart-contract mint_produced method
     """
@@ -25,7 +24,7 @@ class ProducedEnergy(Energy):
         self.is_co2_down = is_co2_down
 
 
-class ConsumedEnergy(Energy):
+class ConsumedEnergy(EnergyData):
     """
     Helper for coo smart-contract mint_consumed method
     """
@@ -48,7 +47,7 @@ class OriginV1(EVMSmartContractClient):
     This class is only an interface to a ewf-client via json rpc calls and interact with the smart-contract.
     """
 
-    def mint(self, energy: Energy) -> dict:
+    def mint(self, energy: EnergyData) -> dict:
         raise NotImplementedError
 
     def __init__(self, asset_id: int, wallet_add: str, wallet_pwd: str, client_url: str):

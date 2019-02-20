@@ -7,9 +7,8 @@ from enum import Enum
 
 from ruamel.yaml import YAML
 
-from energyweb import CarbonEmissionAPI
+from energyweb import CarbonEmissionAPI, EVMSmartContractClient
 from energyweb.eds.interfaces import EnergyDevice
-from energyweb.smart_contract import EVMSmartContractClient
 
 Module = namedtuple('Module', ['module', 'class_name', 'parameters'])
 

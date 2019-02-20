@@ -48,7 +48,7 @@ class DataLoggerV1(EnergyDevice):
         access_epoch = int(time.time())
         time_format = '%Y-%m-%dT%H:%M:%SZ'
         energy = float(tree_leaves['TotWhImp'].replace('.', ''))
-        mwh_energy = self.to_mwh(energy)
+        mwh_energy = self.to_mwh(energy, self.energy_unit)
         measurement_epoch = int(time.mktime(time.strptime(tree_header['t'], time_format)))
         return EnergyData(asset=device, access_epoch=access_epoch, raw=raw, measurement_epoch=measurement_epoch,
                           energy=mwh_energy)
@@ -94,7 +94,7 @@ class DataLoggerV2d1d1(EnergyDevice):
         access_epoch = int(time.time())
         time_format = '%Y-%m-%dT%H:%M:%SZ'
         energy = float(tree_leaves['TotWhImp'])
-        mwh_energy = self.to_mwh(energy)
+        mwh_energy = self.to_mwh(energy, self.energy_unit)
         measurement_epoch = int(time.mktime(time.strptime(tree_header['t'], time_format)))
         return EnergyData(asset=device, access_epoch=access_epoch, raw=raw, measurement_epoch=measurement_epoch,
                           energy=mwh_energy)
