@@ -1,0 +1,33 @@
+energyweb: 1.0
+info:
+  title: App Title 
+  description: My very nice energyweb embedded app
+  version: 1.0 alpha
+config:
+  debugger: on
+  verbosity: low
+tasks:
+  - Consumer Asset 0:
+      module: ConsumerTask
+      asset: 
+        id: 0
+        wallet: 0x0088fF114071cD11D910A3C4C999215DbbF320fF
+        wallet_pk": 8cc3187a123770c8b6b89ccee765fbfafc36d64d80a6f33d7e4ffc4ff638097f
+      smart_meter: 
+        module: OriginAPI
+        url: http://example.com
+        source: consumed
+        device_id": 0
+  - Producer Asset 1:
+      module: ProducerTask
+      task_interval: 60
+      task_is_eager: true
+      asset:
+        id: 0
+        wallet: 0x0088fF114071cD11D910A3C4C999215DbbF320fF
+        wallet_pk": 8cc3187a123770c8b6b89ccee765fbfafc36d64d80a6f33d7e4ffc4ff638097f
+      smart_meter:
+        module: OriginAPI
+          url: http://example.com
+          source: produced
+          device_id": 1
