@@ -22,7 +22,7 @@ class EnergyData(ExternalData):
     def __init__(self, asset, access_epoch, raw, energy, measurement_epoch):
         """
         Minimum set of data for power measurement logging.
-        :param asset: Metadata about the measurement device
+        :param asset: Metadata about the measurement device. EnergyDevice
         :param access_epoch: Time the external API was accessed
         :param raw: Raw data collected
         :param energy: Measured energy at the source converted to watt-hours
@@ -34,12 +34,12 @@ class EnergyData(ExternalData):
         ExternalData.__init__(self, access_epoch, raw)
 
 
-class EnergyDataSource(IntegrationPoint):
+class EnergyDevice(IntegrationPoint):
     """
     Energy device or api abstraction. Can be smart-meters, battery controllers, inverters, gateways, clouds, so on.
     """
 
-    def __init__(self, manufacturer, model, serial_number, latitude, longitude, energy_unit, is_value_accumulated):
+    def __init__(self, manufacturer, model, serial_number, energy_unit, is_value_accumulated, latitude=None, longitude=None):
         """
         :param manufacturer: EnergyAsset Manufacturer
         :param model: EnergyAsset model

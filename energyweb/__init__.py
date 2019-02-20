@@ -9,7 +9,7 @@ Bond - Your favorite library for logging energy data on the blockchain
 """
 
 from energyweb.dispatcher import EventLoop, Task, LifeCycle
-from energyweb.eds import EnergyUnit, EnergyData, EnergyDataSource
+from energyweb.eds import EnergyUnit, EnergyData, EnergyDevice
 from energyweb.carbonemission import CarbonEmissionData
 from energyweb.interfaces import App
 

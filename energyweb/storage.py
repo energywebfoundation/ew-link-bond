@@ -7,7 +7,7 @@ import pickle
 import hashlib
 import datetime
 
-from energyweb import base58
+import base58
 from energyweb.interfaces import Serializable
 
 
@@ -61,7 +61,7 @@ class DiskStorage:
     def chain(self, chain_link: ChainLink):
         if chain_link is not None:
             raise AttributeError
-        self.__chain_append(chain_link)
+        self._chain_append(chain_link)
 
     def add_to_chain(self, data: Serializable) -> str:
         """
@@ -69,11 +69,11 @@ class DiskStorage:
         :param data: Data to store
         :return: File name string
         """
-        data_file_name = self.__save_file(data)
+        data_file_name = self._save_file(data)
         chain_data = ChainFile(data_file_name, datetime.datetime.now())
         new_link = ChainLink(data=chain_data, last_link=self.chain)
-        self.__chain_append(new_link)
-        self.__save_memory()
+        self._chain_append(new_link)
+        self._save_memory()
         return data_file_name
 
     def get_last_hash(self) -> str:
@@ -90,14 +90,14 @@ class DiskStorage:
         else:
             return '0x0'
 
-    def __chain_append(self, chain_link: ChainLink):
+    def _chain_append(self, chain_link: ChainLink):
         self.__memory = chain_link
-        self.__save_memory()
+        self._save_memory()
 
-    def __save_memory(self):
+    def _save_memory(self):
         pickle.dump(self.__memory, open(self.chain_file, 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
 
-    def __save_file(self, data):
+    def _save_file(self, data):
         if not os.path.exists(self.path):
             os.makedirs(self.path)
         file_name_mask = self.path + '%Y-%m-%d-%H:%M:%S.json'

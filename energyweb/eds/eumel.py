@@ -7,17 +7,13 @@ import time
 import requests
 
 from xml.etree import ElementTree
-from energyweb import EnergyAsset
 from energyweb.eds import EnergyUnit, EnergyData
-from energyweb.eds.interfaces import EnergyDataSource
+from energyweb.eds.interfaces import EnergyDevice
 
 
-class DataLoggerV1(EnergyDataSource):
+class DataLoggerV1(EnergyDevice):
     """
     Eumel DataLogger api v1.0 access implementation
-
-    unit: Watthour
-    is_accumulated: True
     """
 
     def __init__(self, ip, user, password):
@@ -28,7 +24,8 @@ class DataLoggerV1(EnergyDataSource):
         """
         self.eumel_api_url = ip + '/rest'
         self.auth = (user, password)
-        super().__init__(unit=EnergyUnit.WATT_HOUR, is_accumulated=True)
+        super().__init__(manufacturer='Verbund', model='Eumel v1', serial_number=None, energy_unit=EnergyUnit.WATT_HOUR,
+                         is_value_accumulated=True)
 
     def read_state(self, path=None) -> EnergyData:
         if path:
@@ -42,25 +39,27 @@ class DataLoggerV1(EnergyDataSource):
         tree_root = tree.getroot()
         tree_header = tree_root[0].attrib
         tree_leaves = {child.attrib['id']: child.text for child in tree_root[0][0]}
-        device = EnergyAsset(
+        device = EnergyDevice(
             manufacturer=tree_header['man'],
             model=tree_header['mod'],
-            serial_number=tree_header['sn'])
+            serial_number=tree_header['sn'],
+            energy_unit=self.energy_unit,
+            is_value_accumulated=self.is_value_accumulated)
         access_epoch = int(time.time())
         time_format = '%Y-%m-%dT%H:%M:%SZ'
         energy = float(tree_leaves['TotWhImp'].replace('.', ''))
-        mwh_energy = self.energy_in_mwh(energy)
+        mwh_energy = self.to_mwh(energy)
         measurement_epoch = int(time.mktime(time.strptime(tree_header['t'], time_format)))
-        return EnergyData(asset=device, access_epoch=access_epoch, raw=raw, mwh_energy=mwh_energy, unit=self.unit,
-                          measurement_epoch=measurement_epoch, is_accumulated=self.is_accumulated)
+        return EnergyData(asset=device, access_epoch=access_epoch, raw=raw, measurement_epoch=measurement_epoch,
+                          energy=mwh_energy)
+
+    def write_state(self, *args, **kwargs):
+        raise NotImplementedError
 
 
-class DataLoggerV2d1d1(EnergyDataSource):
+class DataLoggerV2d1d1(EnergyDevice):
     """
     Eumel DataLogger api v2.1.1 access implementation
-
-    unit: Watthour
-    is_accumulated: True
     """
 
     def __init__(self, ip, user, password):
@@ -71,7 +70,8 @@ class DataLoggerV2d1d1(EnergyDataSource):
         """
         self.eumel_api_url = ip + '/wizard/public/api/rest'
         self.auth = (user, password)
-        super().__init__(unit=EnergyUnit.WATT_HOUR, is_accumulated=True)
+        super().__init__(manufacturer='Verbund', model='Eumel v1', serial_number=None, energy_unit=EnergyUnit.WATT_HOUR,
+                         is_value_accumulated=True)
 
     def read_state(self, path=None) -> EnergyData:
         if path:
@@ -85,15 +85,19 @@ class DataLoggerV2d1d1(EnergyDataSource):
         tree_root = tree.getroot()
         tree_header = tree_root[0].attrib
         tree_leaves = {child.attrib['id']: child.text for child in tree_root[0][1]}
-        device = EnergyAsset(
+        device = EnergyDevice(
             manufacturer=tree_header['man'],
             model=tree_header['mod'],
             serial_number=tree_header['sn'],
-            geolocation=None)
+            energy_unit=self.energy_unit,
+            is_value_accumulated=self.is_value_accumulated)
         access_epoch = int(time.time())
         time_format = '%Y-%m-%dT%H:%M:%SZ'
         energy = float(tree_leaves['TotWhImp'])
-        mwh_energy = self.energy_in_mwh(energy)
+        mwh_energy = self.to_mwh(energy)
         measurement_epoch = int(time.mktime(time.strptime(tree_header['t'], time_format)))
-        return EnergyData(asset=device, access_epoch=access_epoch, raw=raw, mwh_energy=mwh_energy, unit=self.unit,
-                          measurement_epoch=measurement_epoch, is_accumulated=self.is_accumulated)
+        return EnergyData(asset=device, access_epoch=access_epoch, raw=raw, measurement_epoch=measurement_epoch,
+                          energy=mwh_energy)
+
+    def write_state(self, *args, **kwargs):
+        raise NotImplementedError

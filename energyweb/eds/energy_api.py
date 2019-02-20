@@ -7,12 +7,11 @@ import datetime
 import json
 import requests
 
-from energyweb import EnergyAsset
 from energyweb.eds import EnergyData
-from energyweb.eds.interfaces import EnergyDataSource
+from energyweb.eds.interfaces import EnergyDevice
 
 
-class BondAPIv1(EnergyDataSource):
+class BondAPIv1(EnergyDevice):
 
     def __init__(self, base_url, source, device_id, user=None, password=None):
         """
@@ -35,7 +34,7 @@ class BondAPIv1(EnergyDataSource):
         raw, data, measurement_list = self._reach_source(self.api_url, start, end)
         # device
         device_meta = data[-1]['device']
-        device = EnergyAsset(**device_meta)
+        device = EnergyDevice(**device_meta)
         # accumulated energy in Wh
         if device.is_value_accumulated:
             energy = self.to_wh(measurement_list[-1]['energy'], device.energy_unit)
@@ -49,6 +48,9 @@ class BondAPIv1(EnergyDataSource):
         measurement_epoch = calendar.timegm(measurement_time.timetuple())
         return EnergyData(asset=device, access_epoch=access_epoch, raw=raw, energy=energy,
                           measurement_epoch=measurement_epoch)
+
+    def write_state(self, *args, **kwargs) -> EnergyData:
+        raise NotImplementedError
 
     def _reach_source(self, url, start=None, end=None, have_next=False) -> (str, dict):
         marginal_query = None
@@ -76,6 +78,7 @@ class BondAPIv1(EnergyDataSource):
         return [raw], [data], measurement_list
 
 
+# TODO: Add Tox tests for this module
 class BondAPIv1TestDevice1(BondAPIv1):
     """
     Data parsing test fixture

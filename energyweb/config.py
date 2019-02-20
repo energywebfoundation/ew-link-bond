@@ -8,7 +8,7 @@ from enum import Enum
 from ruamel.yaml import YAML
 
 from energyweb import CarbonEmissionAPI
-from energyweb.eds.interfaces import EnergyDataSource
+from energyweb.eds.interfaces import EnergyDevice
 from energyweb.smart_contract import EVMSmartContractClient
 
 Module = namedtuple('Module', ['module', 'class_name', 'parameters'])
@@ -35,9 +35,9 @@ class EnergyAssetConfiguration:
     """
     Represent Energy Asset configurations for producer and consumers
     """
-    def __init__(self, name: str, energy_meter: EnergyDataSource, asset: EVMSmartContractClient):
-        if not isinstance(energy_meter, EnergyDataSource):
-            raise ConfigurationFileError('Energy_meter must be of an EnergyDataSource class or subclass.')
+    def __init__(self, name: str, energy_meter: EnergyDevice, asset: EVMSmartContractClient):
+        if not isinstance(energy_meter, EnergyDevice):
+            raise ConfigurationFileError('Energy_meter must be of an EnergyDevice class or subclass.')
         if len(name) < 2:
             raise ConfigurationFileError('Name must be longer than two characters.')
         self.name = name
@@ -49,7 +49,7 @@ class GreenEnergyProducerConfiguration(EnergyAssetConfiguration):
     """
     Represents special case of energy producer
     """
-    def __init__(self, name: str, energy_meter: EnergyDataSource, carbon_emission: CarbonEmissionAPI,
+    def __init__(self, name: str, energy_meter: EnergyDevice, carbon_emission: CarbonEmissionAPI,
                  asset: EVMSmartContractClient):
         if not isinstance(carbon_emission, CarbonEmissionAPI):
             raise ConfigurationFileError('Carbon_emission must be of an CarbonEmissionAPI class or subclass.')

@@ -4,12 +4,11 @@ Library containing the implementations of smart-meter simulator integration clas
 import time
 import random
 
-from energyweb import EnergyAsset
 from energyweb.eds import EnergyData
-from energyweb.eds.interfaces import EnergyDataSource
+from energyweb.eds.interfaces import EnergyDevice
 
 
-class EnergyMeterSimulator(EnergyDataSource):
+class EnergyMeterSimulator(EnergyDevice):
     """
     Data logger simulator. It will return a pseudo-random incremental number in every iteration
     """
@@ -18,7 +17,7 @@ class EnergyMeterSimulator(EnergyDataSource):
 
     def read_state(self) -> EnergyData:
         access_epoch = int(time.time())
-        device = EnergyAsset(
+        device = EnergyDevice(
             manufacturer='Slock.it',
             model='Virtual Energy Meter',
             serial_number='0001000',
@@ -30,3 +29,6 @@ class EnergyMeterSimulator(EnergyDataSource):
         raw = str(device_str + str(access_epoch) + str(kwh_power) + str(measurement_epoch))
         return EnergyData(asset=device, access_epoch=access_epoch, raw=raw, energy=kwh_power,
                           measurement_epoch=measurement_epoch)
+
+    def write_state(self, *args, **kwargs):
+        raise NotImplementedError
