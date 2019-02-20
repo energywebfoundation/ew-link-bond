@@ -7,8 +7,8 @@ from enum import Enum
 
 from ruamel.yaml import YAML
 
-from energyweb import CarbonEmissionDataSource
-from energyweb.eds import EnergyDataSource
+from energyweb import CarbonEmissionAPI
+from energyweb.eds.interfaces import EnergyDataSource
 from energyweb.smart_contract import EVMSmartContractClient
 
 Module = namedtuple('Module', ['module', 'class_name', 'parameters'])
@@ -49,10 +49,10 @@ class GreenEnergyProducerConfiguration(EnergyAssetConfiguration):
     """
     Represents special case of energy producer
     """
-    def __init__(self, name: str, energy_meter: EnergyDataSource, carbon_emission: CarbonEmissionDataSource,
+    def __init__(self, name: str, energy_meter: EnergyDataSource, carbon_emission: CarbonEmissionAPI,
                  asset: EVMSmartContractClient):
-        if not isinstance(carbon_emission, CarbonEmissionDataSource):
-            raise ConfigurationFileError('Carbon_emission must be of an CarbonEmissionDataSource class or subclass.')
+        if not isinstance(carbon_emission, CarbonEmissionAPI):
+            raise ConfigurationFileError('Carbon_emission must be of an CarbonEmissionAPI class or subclass.')
         self.carbon_emission = carbon_emission
         super().__init__(name=name, energy_meter=energy_meter, asset=asset)
 

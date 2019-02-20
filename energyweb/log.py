@@ -3,7 +3,7 @@ import os
 
 import colorlog
 
-from energyweb import RawEnergyData
+from energyweb.eds import EnergyData
 from energyweb.config import EnergyAssetConfiguration
 
 
@@ -72,7 +72,7 @@ class EnergyLogger(Logger):
             self.console.debug('[CONFIG] path to logs: {}'.format(self.store))
         self.console.debug(message.format(self.asset.name, self.asset.meter.__class__.__name__))
 
-    def log_measured_energy(self) -> (RawEnergyData, Energy):
+    def log_measured_energy(self) -> (EnergyData, Energy):
         """
         Try to reach the meter and logs the measured energy.
         """
@@ -89,7 +89,7 @@ class EnergyLogger(Logger):
             self.error_log.exception(error_msg.format(self.asset.meter.__class__.__name__, e))
             self.console.warning('[FAIL] is unreachable.')
 
-    def __transform(self, raw_energy: RawEnergyData) -> Energy:
+    def __transform(self, raw_energy: EnergyData) -> Energy:
         """
         Transforms the raw external energy data into blockchain format. Needs to be implemented for each different
         smart-contract.

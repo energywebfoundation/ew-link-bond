@@ -7,8 +7,9 @@ import time
 import requests
 
 from xml.etree import ElementTree
-from energyweb import EnergyUnit, RawEnergyData, EnergyAsset
-from energyweb.eds import EnergyDataSource
+from energyweb import EnergyAsset
+from energyweb.eds import EnergyUnit, EnergyData
+from energyweb.eds.interfaces import EnergyDataSource
 
 
 class DataLoggerV1(EnergyDataSource):
@@ -29,7 +30,7 @@ class DataLoggerV1(EnergyDataSource):
         self.auth = (user, password)
         super().__init__(unit=EnergyUnit.WATT_HOUR, is_accumulated=True)
 
-    def read_state(self, path=None) -> RawEnergyData:
+    def read_state(self, path=None) -> EnergyData:
         if path:
             tree = ElementTree.parse(path)
             with open(path) as file:
@@ -50,8 +51,8 @@ class DataLoggerV1(EnergyDataSource):
         energy = float(tree_leaves['TotWhImp'].replace('.', ''))
         mwh_energy = self.energy_in_mwh(energy)
         measurement_epoch = int(time.mktime(time.strptime(tree_header['t'], time_format)))
-        return RawEnergyData(asset=device, access_epoch=access_epoch, raw=raw, mwh_energy=mwh_energy, unit=self.unit,
-                             measurement_epoch=measurement_epoch, is_accumulated=self.is_accumulated)
+        return EnergyData(asset=device, access_epoch=access_epoch, raw=raw, mwh_energy=mwh_energy, unit=self.unit,
+                          measurement_epoch=measurement_epoch, is_accumulated=self.is_accumulated)
 
 
 class DataLoggerV2d1d1(EnergyDataSource):
@@ -72,7 +73,7 @@ class DataLoggerV2d1d1(EnergyDataSource):
         self.auth = (user, password)
         super().__init__(unit=EnergyUnit.WATT_HOUR, is_accumulated=True)
 
-    def read_state(self, path=None) -> RawEnergyData:
+    def read_state(self, path=None) -> EnergyData:
         if path:
             tree = ElementTree.parse(path)
             with open(path) as file:
@@ -94,5 +95,5 @@ class DataLoggerV2d1d1(EnergyDataSource):
         energy = float(tree_leaves['TotWhImp'])
         mwh_energy = self.energy_in_mwh(energy)
         measurement_epoch = int(time.mktime(time.strptime(tree_header['t'], time_format)))
-        return RawEnergyData(asset=device, access_epoch=access_epoch, raw=raw, mwh_energy=mwh_energy, unit=self.unit,
-                             measurement_epoch=measurement_epoch, is_accumulated=self.is_accumulated)
+        return EnergyData(asset=device, access_epoch=access_epoch, raw=raw, mwh_energy=mwh_energy, unit=self.unit,
+                          measurement_epoch=measurement_epoch, is_accumulated=self.is_accumulated)

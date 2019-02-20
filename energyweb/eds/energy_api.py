@@ -7,8 +7,9 @@ import datetime
 import json
 import requests
 
-from energyweb import RawEnergyData, EnergyAsset
-from energyweb.eds import EnergyDataSource
+from energyweb import EnergyAsset
+from energyweb.eds import EnergyData
+from energyweb.eds.interfaces import EnergyDataSource
 
 
 class BondAPIv1(EnergyDataSource):
@@ -29,7 +30,7 @@ class BondAPIv1(EnergyDataSource):
         self.api_url = '{}/{}/{}'.format(base_url, source, device_id)
         self.auth = (user, password)
 
-    def read_state(self, start=None, end=None) -> RawEnergyData:
+    def read_state(self, start=None, end=None) -> EnergyData:
         # raw
         raw, data, measurement_list = self._reach_source(self.api_url, start, end)
         # device
@@ -46,8 +47,8 @@ class BondAPIv1(EnergyDataSource):
         #  measurement epoch
         measurement_time = datetime.datetime.strptime(measurement_list[-1]['measurement_time'], "%Y-%m-%dT%H:%M:%S%z")
         measurement_epoch = calendar.timegm(measurement_time.timetuple())
-        return RawEnergyData(asset=device, access_epoch=access_epoch, raw=raw, energy=energy,
-                             measurement_epoch=measurement_epoch)
+        return EnergyData(asset=device, access_epoch=access_epoch, raw=raw, energy=energy,
+                          measurement_epoch=measurement_epoch)
 
     def _reach_source(self, url, start=None, end=None, have_next=False) -> (str, dict):
         marginal_query = None

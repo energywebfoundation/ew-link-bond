@@ -4,8 +4,9 @@ Library containing the implementations of smart-meter simulator integration clas
 import time
 import random
 
-from energyweb import RawEnergyData, EnergyAsset
-from energyweb.eds import EnergyDataSource
+from energyweb import EnergyAsset
+from energyweb.eds import EnergyData
+from energyweb.eds.interfaces import EnergyDataSource
 
 
 class EnergyMeterSimulator(EnergyDataSource):
@@ -15,7 +16,7 @@ class EnergyMeterSimulator(EnergyDataSource):
     def __init__(self):
         self.memory = random.randint(1, 20)
 
-    def read_state(self) -> RawEnergyData:
+    def read_state(self) -> EnergyData:
         access_epoch = int(time.time())
         device = EnergyAsset(
             manufacturer='Slock.it',
@@ -27,5 +28,5 @@ class EnergyMeterSimulator(EnergyDataSource):
         measurement_epoch = int(time.time())
         device_str = device.manufacturer + device.model + device.serial_number
         raw = str(device_str + str(access_epoch) + str(kwh_power) + str(measurement_epoch))
-        return RawEnergyData(asset=device, access_epoch=access_epoch, raw=raw, energy=kwh_power,
-                             measurement_epoch=measurement_epoch)
+        return EnergyData(asset=device, access_epoch=access_epoch, raw=raw, energy=kwh_power,
+                          measurement_epoch=measurement_epoch)

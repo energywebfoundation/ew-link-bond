@@ -5,10 +5,47 @@ import calendar
 import datetime
 import requests
 
-from energyweb import RawCarbonEmissionData, CarbonEmissionDataSource
+from energyweb.interfaces import ExternalData, IntegrationPoint
 
 
-class WattimeV1(CarbonEmissionDataSource):
+class CarbonEmissionData(ExternalData):
+    """
+    Standard for collected carbon emission data, to be transformed into mintable data.
+    """
+
+    def __init__(self, access_epoch, raw, accumulated_co2, measurement_epoch):
+        """
+        Minimum set of data for power measurement logging.
+        :param access_epoch: Time the external API was accessed
+        :param raw: Raw data collected
+        :param accumulated_co2: Registered in kg of carbon dioxide
+        :param measurement_epoch: Time of measurement at the source
+        """
+        self.accumulated_co2 = accumulated_co2
+        self.measurement_epoch = measurement_epoch
+        ExternalData.__init__(self, access_epoch, raw)
+
+
+class CarbonEmissionAPI(IntegrationPoint):
+    """
+    Carbon emission endpoint data interface
+    """
+    def read_state(self, *args, **kwargs) -> CarbonEmissionData:
+        """
+        Establishes a connection to the integration medium and returns the latest state
+        :rtype: ExternalData
+        """
+        raise NotImplementedError
+
+    def write_state(self, *args, **kwargs) -> ExternalData:
+        """
+        Establishes a connection to the integration medium and persists data
+        :rtype: ExternalData
+        """
+        raise NotImplementedError
+
+
+class WattimeV1(CarbonEmissionAPI):
 
     def __init__(self, usr: str, pwd: str, ba: str, hours_from_now: int = 2):
         """
@@ -24,13 +61,13 @@ class WattimeV1(CarbonEmissionDataSource):
         self.ba = ba
         self.hours_from_now = hours_from_now
 
-    def read_state(self) -> RawCarbonEmissionData:
+    def read_state(self) -> CarbonEmissionData:
         """
-        Reach wattime api, parse and convert to RawCarbonEmissionData.
+        Reach wattime api, parse and convert to CarbonEmissionData.
         """
-        auth_token = self.get_auth_token()
+        auth_token = self.__get_auth_token()
         # 2. Fetch marginal data
-        raw = self.get_marginal(auth_token)
+        raw = self.__get_marginal(auth_token)
         # 3. Converts lb/MW to kg/W
         accumulated_co2 = raw['marginal_carbon']['value'] * 0.453592 * pow(10, -6)
         # 4. Converts time stamps to epoch
@@ -38,9 +75,12 @@ class WattimeV1(CarbonEmissionDataSource):
         access_epoch = calendar.timegm(now.timetuple())
         measurement_timestamp = datetime.datetime.strptime(raw['timestamp'], "%Y-%m-%dT%H:%M:%SZ")
         measurement_epoch = calendar.timegm(measurement_timestamp.timetuple())
-        return RawCarbonEmissionData(access_epoch, raw, accumulated_co2, measurement_epoch)
+        return CarbonEmissionData(access_epoch, raw, accumulated_co2, measurement_epoch)
 
-    def get_auth_token(self) -> str:
+    def write_state(self, *args, **kwargs) -> ExternalData:
+        raise NotImplementedError
+
+    def __get_auth_token(self) -> str:
         """
         Exchange credentials for an access token.
         :return: Access token string suitable for passing as arg in other methods.
@@ -54,7 +94,7 @@ class WattimeV1(CarbonEmissionDataSource):
             raise AttributeError('Failed getting a new token.')
         return ans['token']
 
-    def get_marginal(self, auth_token: str) -> dict:
+    def __get_marginal(self, auth_token: str) -> dict:
         """
         Gets marginal carbon emission based on real time energy source mix of the grid.
         :param auth_token: authentication token
@@ -105,7 +145,7 @@ class WattimeV1(CarbonEmissionDataSource):
         return ans['abbrev']
 
 
-class WattimeV2(CarbonEmissionDataSource):
+class WattimeV2(CarbonEmissionAPI):
 
     def __init__(self, usr: str, pwd: str, ba: str):
         """
@@ -118,13 +158,13 @@ class WattimeV2(CarbonEmissionDataSource):
         self.api_url = 'https://api2.watttime.org/v2test/'
         self.ba = ba
 
-    def read_state(self) -> RawCarbonEmissionData:
+    def read_state(self) -> CarbonEmissionData:
         """
-        Reach wattime api, parse and convert to RawCarbonEmissionData.
+        Reach wattime api, parse and convert to CarbonEmissionData.
         """
-        auth_token = self.get_auth_token()
+        auth_token = self.__get_auth_token()
         # 2. Fetch marginal data
-        raw = self.get_marginal(auth_token)
+        raw = self.__get_marginal(auth_token)
         # 3. Converts lb/MW to kg/W
         accumulated_co2 = raw['avg'] * 0.453592 * pow(10, -6)
         # 4. Converts time stamps to epoch
@@ -132,9 +172,12 @@ class WattimeV2(CarbonEmissionDataSource):
         access_epoch = calendar.timegm(now.timetuple())
         measurement_timestamp = now
         measurement_epoch = calendar.timegm(measurement_timestamp.timetuple())
-        return RawCarbonEmissionData(access_epoch, raw, accumulated_co2, measurement_epoch)
+        return CarbonEmissionData(access_epoch, raw, accumulated_co2, measurement_epoch)
 
-    def get_auth_token(self) -> str:
+    def write_state(self, *args, **kwargs) -> ExternalData:
+        raise NotImplementedError
+
+    def __get_auth_token(self) -> str:
         """
         Exchange credentials for an access token.
         :return: Access token string suitable for passing as arg in other methods.
@@ -148,7 +191,7 @@ class WattimeV2(CarbonEmissionDataSource):
             raise AttributeError('Failed getting a new token.')
         return ans['token']
 
-    def get_marginal(self, auth_token: str) -> dict:
+    def __get_marginal(self, auth_token: str) -> dict:
         """
         Gets marginal carbon emission based on real time energy source mix of the grid.
         :param auth_token: authentication token

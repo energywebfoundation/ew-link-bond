@@ -15,7 +15,7 @@ setuptools.setup(
     Please visit https://github.com/energywebfoundation/ew-link-bond for more.",
     url="https://github.com/energywebfoundation/ew-link-bond",
     packages=setuptools.find_packages(exclude=["docs", "tests"]),
-    install_requires=['web3>=4.8.0,<5.0.0', 'colorlog>=3.1.4'],
+    install_requires=['web3>=4.8.0,<5.0.0', 'colorlog>=3.1.4', 'base58>=1.0.3'],
     keywords=['ethereum', 'blockchain', 'energy-web', 'energy', 'smart-meter'],
     classifiers=[
         "Programming Language :: Python :: 3",
