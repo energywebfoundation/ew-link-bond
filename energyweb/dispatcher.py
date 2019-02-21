@@ -2,48 +2,44 @@
 Asynchronous event watcher loop
 """
 import asyncio
-from enum import IntEnum
-
-
-class LifeCycle(IntEnum):
-    """
-    Data source reading time cycle. Determines the period time is collected.
-    """
-    FIVE_SECONDS = 5
-    SEVEN_SECONDS = 7
-    TWENTY_SECONDS = 20
-    FORTY_SECONDS = 40
-    ONE_MINUTE = 60
-    TEN_MINUTES = 600
-    THIRTY_MINUTES = 1800
-    ONE_HOUR = 3600
-    SIX_HOURS = 21600
-    TWELVE_HOURS = 43200
-    ONE_DAY = 86400
-
+import datetime
 
 class Task:
     """
     Tasks are routines that run from time to time respecting an interval and spawn sync or async coroutines.
     These routines may only execute if a trigger condition is fired.
     """
-    def __init__(self, interval: LifeCycle):
+    def __init__(self, polling_interval: datetime.timedelta, eager: bool=False):
         """
         :param interval: in seconds
         """
-        self.interval = interval
+        self.polling_interval = polling_interval
+        self.eager = eager
 
     def trigger_event(self):
         return True
 
+    def prepare(self):
+        pass
+
     def coroutine(self) -> None:
-        raise NotImplementedError
+        return True
+
+    def finish(self) -> None:
+        pass
 
     async def task(self):
-        await asyncio.sleep(self.interval.value)
-        if self.trigger_event():
+        self.prepare()
+
+        if self.eager:
             self.coroutine()
 
+        while True:
+            await asyncio.sleep(self.polling_interval.total_seconds())
+            # stop loop if task returned false
+            if not self.coroutine():
+                self.finish()
+                break
 
 class EventLoop:
     """
@@ -68,3 +64,24 @@ class EventLoop:
             self.loop.run_forever()
         except KeyboardInterrupt:
             self.loop.close()
+
+class App(EventLoop):
+    """
+    General application abstraction
+    """
+
+    def prepare(self):
+        pass
+
+    def configure(self):
+        raise NotImplementedError
+
+    def finish(self):
+        pass
+
+    def run(self):
+        self.prepare()
+        self.configure()
+        super().run()
+        self.finish()
+
