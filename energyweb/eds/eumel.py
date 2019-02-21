@@ -25,7 +25,7 @@ class DataLoggerV1(EnergyDevice):
         self.eumel_api_url = ip + '/rest'
         self.auth = (user, password)
         super().__init__(manufacturer='Verbund', model='Eumel v1', serial_number=None, energy_unit=EnergyUnit.WATT_HOUR,
-                         is_value_accumulated=True)
+                         is_accumulated=True)
 
     def read_state(self, path=None) -> EnergyData:
         if path:
@@ -44,7 +44,7 @@ class DataLoggerV1(EnergyDevice):
             model=tree_header['mod'],
             serial_number=tree_header['sn'],
             energy_unit=self.energy_unit,
-            is_value_accumulated=self.is_value_accumulated)
+            is_accumulated=self.is_accumulated)
         access_epoch = int(time.time())
         time_format = '%Y-%m-%dT%H:%M:%SZ'
         energy = float(tree_leaves['TotWhImp'].replace('.', ''))
@@ -71,7 +71,7 @@ class DataLoggerV2d1d1(EnergyDevice):
         self.eumel_api_url = ip + '/wizard/public/api/rest'
         self.auth = (user, password)
         super().__init__(manufacturer='Verbund', model='Eumel v1', serial_number=None, energy_unit=EnergyUnit.WATT_HOUR,
-                         is_value_accumulated=True)
+                         is_accumulated=True)
 
     def read_state(self, path=None) -> EnergyData:
         if path:
@@ -90,7 +90,7 @@ class DataLoggerV2d1d1(EnergyDevice):
             model=tree_header['mod'],
             serial_number=tree_header['sn'],
             energy_unit=self.energy_unit,
-            is_value_accumulated=self.is_value_accumulated)
+            is_accumulated=self.is_accumulated)
         access_epoch = int(time.time())
         time_format = '%Y-%m-%dT%H:%M:%SZ'
         energy = float(tree_leaves['TotWhImp'])

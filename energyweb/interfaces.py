@@ -1,8 +1,7 @@
 import datetime
 import inspect
 
-from energyweb import EventLoop
-from energyweb.eds import EnergyData
+from energyweb.dispatcher import EventLoop
 
 
 class Serializable(object):
@@ -123,7 +122,7 @@ class BlockchainClient:
         """
         raise NotImplementedError
 
-    def mint(self, energy: EnergyData) -> dict:
+    def mint(self, energy: ExternalData) -> dict:
         """
         Mint the measured energy in the blockchain smart-contract
         """

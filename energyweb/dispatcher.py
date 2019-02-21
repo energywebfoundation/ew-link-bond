@@ -10,6 +10,9 @@ class LifeCycle(IntEnum):
     Data source reading time cycle. Determines the period time is collected.
     """
     FIVE_SECONDS = 5
+    SEVEN_SECONDS = 7
+    TWENTY_SECONDS = 20
+    FORTY_SECONDS = 40
     ONE_MINUTE = 60
     TEN_MINUTES = 600
     THIRTY_MINUTES = 1800
@@ -24,13 +27,11 @@ class Task:
     Tasks are routines that run from time to time respecting an interval and spawn sync or async coroutines.
     These routines may only execute if a trigger condition is fired.
     """
-    def __init__(self, interval: LifeCycle, is_eager: bool=True):
+    def __init__(self, interval: LifeCycle):
         """
         :param interval: in seconds
-        :param is_eager: to execute this task right away
         """
         self.interval = interval
-        self.is_eager = is_eager
 
     def trigger_event(self):
         return True
@@ -39,13 +40,9 @@ class Task:
         raise NotImplementedError
 
     async def task(self):
-        if self.is_eager:
-            if self.trigger_event():
-                self.coroutine()
-        while True:
-            await asyncio.sleep(self.interval.value)
-            if self.trigger_event():
-                self.coroutine()
+        await asyncio.sleep(self.interval.value)
+        if self.trigger_event():
+            self.coroutine()
 
 
 class EventLoop:
@@ -61,7 +58,7 @@ class EventLoop:
 
     def add_task(self, task: Task):
         if not task:
-            raise Exception('Please add a callable function or method.')
+            raise Exception('Please add a Task type with callable task named method.')
         self.task_list.append(asyncio.ensure_future(task.task()))
 
     def run(self):

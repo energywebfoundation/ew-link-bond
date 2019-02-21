@@ -7,8 +7,7 @@ import datetime
 import json
 import requests
 
-from energyweb.eds import EnergyData
-from energyweb.eds.interfaces import EnergyDevice
+from energyweb.eds.interfaces import EnergyDevice, EnergyData
 
 
 class BondAPIv1(EnergyDevice):
@@ -36,7 +35,7 @@ class BondAPIv1(EnergyDevice):
         device_meta = data[-1]['device']
         device = EnergyDevice(**device_meta)
         # accumulated energy in Wh
-        if device.is_value_accumulated:
+        if device.is_accumulated:
             energy = self.to_wh(measurement_list[-1]['energy'], device.energy_unit)
         else:
             energy = self.to_wh(sum(i['energy'] for i in measurement_list), device.energy_unit)
@@ -84,7 +83,7 @@ class BondAPIv1TestDevice1(BondAPIv1):
     Data parsing test fixture
     """
 
-    def _reach_source(self, url, have_next=False) -> (str, dict):
+    def _reach_source(self, url, start=None, end=None, have_next=False) -> (str, dict):
         raw = {
             "base_url/produced/0": '{"count": 0, "previous": null, "next": "/second", "device": {"manufacturer": "Siemens", "model": "ABC-123", "serial_number": "345345345", "latitude": "54.443567", "longitude": "-23.312543", "energy_unit": "kilowatt_hour", "is_accumulated": true }, "measuredEnergy": [{"energy": 100, "measurement_time": "2018-03-15T10:30:00+00:00"}, {"energy": 200, "measurement_time": "2018-03-15T12:30:00+00:00"}, {"energy": 250, "measurement_time": "2018-03-15T14:30:00+00:00"} ] }',
             "base_url/second": '{"count": 1, "previous": "first", "next": null, "device": {"manufacturer": "Siemens", "model": "ABC-123", "serial_number": "345345345", "latitude": "54.443567", "longitude": "-23.312543", "energy_unit": "kilowatt_hour", "is_accumulated": true }, "measuredEnergy": [{"energy": 390, "measurement_time": "2018-03-15T16:30:00+00:00"}, {"energy": 400, "measurement_time": "2018-03-15T18:30:00+00:00"} ] }'
@@ -98,7 +97,7 @@ class BondAPIv1TestDevice2(BondAPIv1):
     Data parsing test fixture
     """
 
-    def _reach_source(self, url, have_next=False) -> (str, dict):
+    def _reach_source(self, url, start=None, end=None, have_next=False) -> (str, dict):
         raw = {
             "base_url/produced/0": '{"count": 0, "previous": null, "next": "/second", "device": {"manufacturer": "Siemens", "model": "ABC-123", "serial_number": "345345345", "latitude": "54.443567", "longitude": "-23.312543", "energy_unit": "watt_hour", "is_accumulated": false }, "measuredEnergy": [{"energy": 12304, "measurement_time": "2018-03-15T10:30:00+00:00"}, {"energy": 8568, "measurement_time": "2018-03-15T12:30:00+00:00"}, {"energy": 63456, "measurement_time": "2018-03-15T14:30:00+00:00"} ] }',
             "base_url/second": '{"count": 1, "previous": "/first", "next": null, "device": {"manufacturer": "Siemens", "model": "ABC-123", "serial_number": "345345345", "latitude": "54.443567", "longitude": "-23.312543", "energy_unit": "watt_hour", "is_accumulated": false }, "measuredEnergy": [{"energy": 0, "measurement_time": "2018-03-15T16:30:00+00:00"}, {"energy": 265, "measurement_time": "2018-03-15T18:30:00+00:00"} ] }'
@@ -112,7 +111,7 @@ class BondAPIv1TestDevice3(BondAPIv1):
     Data parsing test fixture
     """
 
-    def _reach_source(self, url, have_next=False) -> (str, dict):
+    def _reach_source(self, url, start=None, end=None, have_next=False) -> (str, dict):
         raw = {
             "base_url/produced/0": '{"count": 0, "previous": null, "next": null, "device": {"manufacturer": "Siemens", "model": "ABC-123", "serial_number": "345345345", "latitude": "54.443567", "longitude": "-23.312543", "energy_unit": "megawatt_hour", "is_accumulated": false }, "measuredEnergy": [{"energy": 12304, "measurement_time": "2018-03-15T10:30:00+00:00"}, {"energy": 8568, "measurement_time": "2018-03-15T12:30:00+00:00"}, {"energy": 6, "measurement_time": "2018-03-15T14:30:00+00:00"} ] }'
         }

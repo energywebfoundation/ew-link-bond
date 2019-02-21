@@ -4,7 +4,9 @@ from web3 import Web3, HTTPProvider
 from web3.contract import ConciseContract
 from web3.utils.filters import Filter
 
-from energyweb import EnergyData, CarbonEmissionData, BlockchainClient
+from energyweb.eds.interfaces import EnergyData
+from energyweb.carbonemission import CarbonEmissionData
+from energyweb.interfaces import BlockchainClient
 
 
 class GreenEnergy(EnergyData, CarbonEmissionData):

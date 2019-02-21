@@ -39,7 +39,7 @@ class EnergyDevice(IntegrationPoint):
     Energy device or api abstraction. Can be smart-meters, battery controllers, inverters, gateways, clouds, so on.
     """
 
-    def __init__(self, manufacturer, model, serial_number, energy_unit, is_value_accumulated, latitude=None, longitude=None):
+    def __init__(self, manufacturer, model, serial_number, energy_unit, is_accumulated, latitude=None, longitude=None):
         """
         :param manufacturer: EnergyAsset Manufacturer
         :param model: EnergyAsset model
@@ -47,7 +47,7 @@ class EnergyDevice(IntegrationPoint):
         :param latitude: EnergyAsset geolocation latitude
         :param longitude: EnergyAsset geolocation longitude
         :param energy_unit: Energy unity
-        :param is_value_accumulated: Flags if the api provides accumulated power or hourly production
+        :param is_accumulated: Flags if the api provides accumulated power or hourly production
         """
         self.manufacturer = manufacturer
         self.model = model
@@ -55,7 +55,7 @@ class EnergyDevice(IntegrationPoint):
         self.latitude = latitude
         self.longitude = longitude
         self.energy_unit = EnergyUnit[energy_unit.upper()]
-        self.is_value_accumulated = is_value_accumulated
+        self.is_accumulated = is_accumulated
 
     def read_state(self, *args, **kwargs) -> EnergyData:
         """
