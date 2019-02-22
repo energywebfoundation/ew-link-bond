@@ -11,7 +11,7 @@ class MyTask(energyweb.dispatcher.Task):
         for _ in range(duration):
             print(character, end='', flush=True)
             time.sleep(1)
-        return True
+        return False
 
 class NetworkTask(energyweb.dispatcher.Task):
     """
@@ -23,16 +23,20 @@ class NetworkTask(energyweb.dispatcher.Task):
 
     def main(self, number):
         try:
-            self.net = urllib.request.urlopen(f'http://localhost:8000/{number}')
+            net = urllib.request.urlopen(f'http://localhost:8000/{number}')
         except urllib.error.URLError:
             print('Net unavailable')
             return True
 
-        print('Here we go', end='')
-        for _ in range(3):
-            print('.', end='', flush=True)
-            time.sleep(1)
-        print('')
+        response = net.read().decode().strip()
+        if response == 'ja':
+            print('Here we go', end='')
+            for _ in range(3):
+                print('.', end='', flush=True)
+                time.sleep(1)
+            print('')
+        elif response == 'stop':
+            return False
         return True
 
     def finish(self):
