@@ -3,6 +3,8 @@ Asynchronous event watcher loop
 """
 import asyncio
 import datetime
+import time
+import urllib.request, urllib.error
 
 class Task:
     """
@@ -11,26 +13,21 @@ class Task:
     """
     def __init__(self, polling_interval: datetime.timedelta, eager: bool=False):
         """
-        :param interval: in seconds
+        :param polling_interval: in seconds
         """
         self.polling_interval = polling_interval
         self.eager = eager
 
-    def trigger_event(self):
-        return True
-
     def prepare(self):
         pass
 
-    def coroutine(self) -> None:
+    def coroutine(self) -> bool:
         return True
 
     def finish(self) -> None:
         pass
 
-    async def task(self):
-        self.prepare()
-
+    async def run(self):
         if self.eager:
             self.coroutine()
 
@@ -47,7 +44,6 @@ class EventLoop:
     https://en.wikipedia.org/wiki/Event_loop
     https://docs.python.org/3/library/asyncio.html
     """
-
     def __init__(self):
         self.loop = asyncio.get_event_loop()
         self.task_list = []
@@ -55,15 +51,11 @@ class EventLoop:
     def add_task(self, task: Task):
         if not task:
             raise Exception('Please add a Task type with callable task named method.')
-        self.task_list.append(asyncio.ensure_future(task.task()))
+        self.task_list.append(asyncio.create_task(task.run()))
+        self.loop.run_forever()
 
-    def run(self):
-        if len(self.task_list) < 1:
-            raise Exception('Event loop aborted: Empty task list.')
-        try:
-            self.loop.run_forever()
-        except KeyboardInterrupt:
-            self.loop.close()
+    async def run(self):
+        await asyncio.gather(*self.task_list)
 
 class App(EventLoop):
     """
@@ -82,6 +74,6 @@ class App(EventLoop):
     def run(self):
         self.prepare()
         self.configure()
-        super().run()
+        asyncio.run(super().run())
         self.finish()
 
