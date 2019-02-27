@@ -128,25 +128,3 @@ class BlockchainClient:
         """
         raise NotImplementedError
 
-
-class App(EventLoop):
-    """
-    General application abstraction
-    """
-
-    def prepare(self):
-        pass
-
-    def configure(self):
-        raise NotImplementedError
-
-    def finish(self):
-        pass
-
-    def run(self):
-        self.prepare()
-        self.configure()
-        super().run()
-        self.finish()
-
-

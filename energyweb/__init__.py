@@ -8,9 +8,9 @@
 Bond - Your favorite library for logging energy data on the blockchain
 """
 
-from energyweb.interfaces import App, ExternalData, BlockchainClient
+from energyweb.interfaces import ExternalData, BlockchainClient
 from energyweb.log import Logger
-from energyweb.dispatcher import EventLoop, Task, LifeCycle
+from energyweb.dispatcher import App, EventLoop, Task
 from energyweb.carbonemission import CarbonEmissionData
 from energyweb.eds.interfaces import EnergyUnit, EnergyData, EnergyDevice
 from energyweb.smart_contract.interfaces import EVMSmartContractClient
