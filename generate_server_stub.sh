@@ -88,7 +88,7 @@ function _generate_stub
 
     if [ "${GENERATE_IN}" == "docker" ]
     then
-        docker run --rm \
+        sudo docker run --rm \
                --user $(id -u):$(id -g) \
                -v $(pwd):/local \
                swaggerapi/swagger-codegen-cli generate \
