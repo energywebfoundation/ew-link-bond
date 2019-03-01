@@ -6,7 +6,7 @@ import setuptools
 
 setuptools.setup(
     name="energyweb",
-    version="0.3.6",
+    version="0.3.7",
     author="github.com/cerealkill",
     author_email="paul.depraz@energyweb.org",
     description="Energy utility data interface for blockchain smart contracts",
