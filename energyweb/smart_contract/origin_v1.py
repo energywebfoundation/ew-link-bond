@@ -56,6 +56,7 @@ class OriginV1(EVMSmartContractClient):
         :param wallet_add: Network wallet address
         :param wallet_add: Network wallet password
         :param client_url: URL like address to the blockchain client api.
+        contract_address is not used from config
         """
         contracts = {
             "producer": producer_v1,

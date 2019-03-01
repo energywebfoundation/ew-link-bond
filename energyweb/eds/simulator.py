@@ -4,9 +4,7 @@ Library containing the implementations of smart-meter simulator integration clas
 import time
 import random
 
-from energyweb.eds import EnergyData
-from energyweb.eds.interfaces import EnergyDevice
-
+from energyweb.eds.interfaces import EnergyDevice, EnergyData
 
 class EnergyMeterSimulator(EnergyDevice):
     """
