@@ -1,5 +1,5 @@
 """
-core.config
+energyweb.oldconfig
 
 Configuration file parser and app descriptor
 """
