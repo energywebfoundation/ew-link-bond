@@ -28,7 +28,7 @@ class GreenEnergy(EnergyData, CarbonEmissionData):
         if not self.carbon_emission:
             return 0
         accumulated_energy = self.energy.energy
-        if not self.energy.asset.is_accumulated:
+        if not self.energy.device.is_accumulated:
             accumulated_energy += energy_offset
         co2_saved = self.carbon_emission.accumulated_co2
         calculated_co2 = accumulated_energy * co2_saved

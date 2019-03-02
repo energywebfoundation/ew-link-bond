@@ -1,7 +1,8 @@
 """
 Library containing the Certificate of Origin v1.0 integration classes
 """
-from energyweb import EnergyData, EVMSmartContractClient
+from energyweb.eds.interfaces import EnergyData
+from energyweb.smart_contract.interfaces import EVMSmartContractClient
 from energyweb.smart_contract.origin.consumer_v1 import contract as consumer_v1
 from energyweb.smart_contract.origin.producer_v1 import contract as producer_v1
 from energyweb.smart_contract.origin.asset_reg_v1 import contract as asset_reg_v1
@@ -52,11 +53,11 @@ class OriginV1(EVMSmartContractClient):
 
     def __init__(self, asset_id: int, wallet_add: str, wallet_pwd: str, client_url: str):
         """
-        :param asset_id: ID received in asset registration.
+        :param asset_id: ID received in device registration.
         :param wallet_add: Network wallet address
         :param wallet_add: Network wallet password
         :param client_url: URL like address to the blockchain client api.
-        contract_address is not used from config
+        contract_address is not used from task_config
         """
         contracts = {
             "producer": producer_v1,
@@ -73,8 +74,8 @@ class OriginV1(EVMSmartContractClient):
     def register_asset(self, country: str, region: str, zip_code: str, city: str, street: str, house_number: str,
                        latitude: str, longitude: str):
         """
-        Register asset. The account signing the transaction must have "AssetAdmin" role to successfully register.
-        The asset registry is done manually on this project phase. Please contact the EWF's Ramp up team.
+        Register device. The account signing the transaction must have "AssetAdmin" role to successfully register.
+        The device registry is done manually on this project phase. Please contact the EWF's Ramp up team.
 
         Source:
             AssetLogic.sol
@@ -142,7 +143,7 @@ class OriginProducer(OriginV1):
 
     def last_state(self):
         """
-        Get last file hash registered from producer contract
+        Get complete state of initiated Asset
         Source:
             AssetLogic.sol
         Call stack:

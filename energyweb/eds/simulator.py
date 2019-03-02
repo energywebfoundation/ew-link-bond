@@ -1,5 +1,5 @@
 """
-Library containing the implementations of smart-meter simulator integration classes
+Library containing the implementations of smart-energy_meter simulator integration classes
 """
 import time
 import random
@@ -25,7 +25,7 @@ class EnergyMeterSimulator(EnergyDevice):
         measurement_epoch = int(time.time())
         device_str = device.manufacturer + device.model + device.serial_number
         raw = str(device_str + str(access_epoch) + str(kwh_power) + str(measurement_epoch))
-        return EnergyData(asset=device, access_epoch=access_epoch, raw=raw, energy=kwh_power,
+        return EnergyData(device=device, access_epoch=access_epoch, raw=raw, energy=kwh_power,
                           measurement_epoch=measurement_epoch)
 
     def write_state(self, *args, **kwargs):

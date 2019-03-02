@@ -6,6 +6,7 @@ import datetime
 import time
 import concurrent
 
+
 class Task:
     """
     Tasks are routines that run from time to time respecting an interval and spawn coroutines.
@@ -46,6 +47,7 @@ class Task:
             time.sleep(self.polling_interval.total_seconds())
         self.finish()
 
+
 class EventLoop:
     """
     Delegate and run a set of Tasks in loop that handles I/O or blocking with async calls.
@@ -75,6 +77,7 @@ class EventLoop:
                 self.started_tasks.append(started_task)
             for task in self.started_tasks:
                 await task
+
 
 class App(EventLoop):
     """

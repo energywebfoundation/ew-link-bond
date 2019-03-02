@@ -270,7 +270,7 @@ definitions:
         description: Unit of energy measurement. MUST be "joules", "watt_hour", "kilowatt_hour", "megawatt_hour" or "gigawatt_hour".
       is_accumulated:
         type: boolean
-        description: Defines if the provided energy data is accumulated or not. It is common that solar panels only provide energy generated at the measurement time, not the accumulated value like a domestic energy meter, for example.
+        description: Defines if the provided energy data is accumulated or not. It is common that solar panels only provide energy generated at the measurement time, not the accumulated value like a domestic energy energy_meter, for example.
   MeasuredEnergy:
     description: Energy measured at a certain time.
     type: object

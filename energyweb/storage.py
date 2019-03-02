@@ -1,13 +1,13 @@
 """
-__Storage__ supports EWF's Origin release A log storage, designed to record a sequence of _off-chain_ files by updating the previous file contents SHA hash with the next. It is particularly useful to enforce data integrity, by comparing the sequence of raw smart-meter readings with the sequence registered _on-chain_.
+__Storage__ supports EWF's Origin release A log storage, designed to record a sequence of _off-chain_ files by updating the previous file contents SHA hash with the next. It is particularly useful to enforce data integrity, by comparing the sequence of raw smart-energy_meter readings with the sequence registered _on-chain_.
 """
 import os
 import json
 import pickle
 import hashlib
 import datetime
-
 import base58
+
 from energyweb.interfaces import Serializable
 
 

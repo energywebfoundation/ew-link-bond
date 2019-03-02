@@ -45,7 +45,7 @@ class BondAPIv1(EnergyDevice):
         #  measurement epoch
         measurement_time = datetime.datetime.strptime(measurement_list[-1]['measurement_time'], "%Y-%m-%dT%H:%M:%S%z")
         measurement_epoch = calendar.timegm(measurement_time.timetuple())
-        return EnergyData(asset=device, access_epoch=access_epoch, raw=raw, energy=energy,
+        return EnergyData(device=device, access_epoch=access_epoch, raw=raw, energy=energy,
                           measurement_epoch=measurement_epoch)
 
     def write_state(self, *args, **kwargs) -> EnergyData:
