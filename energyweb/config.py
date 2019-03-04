@@ -133,6 +133,10 @@ class CooV1ConsumerConfiguration(EnergywebAppConfiguration):
         self.energy_meter = energy_meter
         self.smart_contract = smart_contract
 
+    #def carbon_emission(self):
+        # TODO
+    #    pass
+
 
 class CooV1ProducerConfiguration(CooV1ConsumerConfiguration):
     """
@@ -191,7 +195,7 @@ def __parse_item(config_item: dict):
     :return: Either Producer or Consumer configuration depending if carbon-emission key is present
     """
     item = {
-        'energy_meter': __parse_instance(config_item['energy-energy_meter']),
+        'energy_meter': __parse_instance(config_item['energy-meter']),
         'smart_contract': __parse_instance(config_item['smart-contract']),
         'name': config_item['name']
     }

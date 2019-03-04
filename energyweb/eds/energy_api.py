@@ -118,6 +118,9 @@ class BondAPIv1TestDevice3(BondAPIv1):
         data = json.loads(raw[url])
         return self._parse_source(str(raw), data)
 
+    def is_accumulated(self):
+        return False
+
 
 if __name__ == '__main__':
 
