@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-import calendar
 import datetime
 import time
-import energyweb
 import urllib
 import json
+
+import energyweb
 
 from energyweb.config import CooV1ConsumerConfiguration, CooV1ProducerConfiguration
 
@@ -22,8 +22,8 @@ class CooGeneralTask(energyweb.Logger, energyweb.Task):
         self.task_config = task_config
         self.path_to_files = './origin_logs/'
         self.chain_file_name = 'chained_logs'
-        self.msg_success = 'minted {} watts - block # {}'
-        self.msg_error = 'energy_meter: {} - stack: {}'
+        self.msg_success = 'minted %s watts - block # %s'
+        self.msg_error = 'energy_meter: %s - stack: %s'
         energyweb.Logger.__init__(self, log_name=task_config.name, store=store, enable_debug=enable_debug)
         energyweb.Task.__init__(self, polling_interval=polling_interval, eager=False)
 
@@ -39,10 +39,10 @@ class CooGeneralTask(energyweb.Logger, energyweb.Task):
         """
         Outputs the logger configuration
         """
-        message = '[CONFIG] name: {} - energy energy_meter: {}'
+        message = '[CONFIG] name: %s - energy energy_meter: %s'
         if self.store and self.enable_debug:
-            self.console.debug('[CONFIG] path to logs: {}'.format(self.store))
-        self.console.debug(message.format(self.task_config.name, self.task_config.energy_meter.__class__.__name__))
+            self.console.debug('[CONFIG] path to logs: %s', self.store)
+        self.console.debug(message, self.task_config.name, self.task_config.energy_meter.__class__.__name__)
 
     def _log_measured_energy(self):
         """
@@ -59,15 +59,15 @@ class CooGeneralTask(energyweb.Logger, energyweb.Task):
                 energy_data = self._transform(local_file_hash=last_file_hash)
                 if energy_data.is_meter_down:
                     local_chain_file = local_storage.add_to_chain(data=energy_data)
-                    self.console.info('{} created'.format(local_chain_file))
+                    self.console.info('%s created', local_chain_file)
             else:
                 energy_data = self._transform(local_file_hash='0x0')
             # Logging to the blockchain
             tx_receipt = self.task_config.smart_contract.mint(energy_data)
             block_number = str(tx_receipt['blockNumber'])
-            self.console.info(self.msg_success.format(energy_data.to_dict(), block_number))
+            self.console.info(self.msg_success, energy_data.to_dict(), block_number)
         except Exception as e:
-            self.console.exception(self.msg_error.format(self.task_config.energy_meter.__class__.__name__, e))
+            self.console.exception(self.msg_error, self.task_config.energy_meter.__class__.__name__, e)
             self.console.warning('Smart-contract is unreachable.')
 
     def _transform(self, local_file_hash: str):
@@ -91,7 +91,7 @@ class CooGeneralTask(energyweb.Logger, energyweb.Task):
             return result, False
         except Exception as e:
             # TODO debug log self.error_log
-            self.console.exception(self.msg_error.format(self.task_config.energy_meter.__class__.__name__, e))
+            self.console.exception(self.msg_error, self.task_config.energy_meter.__class__.__name__, e)
             return None, True
 
 
@@ -196,8 +196,10 @@ class MyApp(energyweb.dispatcher.App):
             app_configuration_file = json.load(open('config.json'))
             app_config = energyweb.config.parse_coo_v1(app_configuration_file)
             interval = datetime.timedelta(seconds=1)
-            [self.add_task(CooProducerTask(task_config=producer, polling_interval=interval, store='/tmp/prodconsume/produce')) for producer in app_config.production]
-            [self.add_task(CooConsumerTask(task_config=consumer, polling_interval=interval, store='/tmp/prodconsume/consume')) for consumer in app_config.consumption]
+            for producer in app_config.production:
+                self.add_task(CooProducerTask(task_config=producer, polling_interval=interval, store='/tmp/prodconsume/produce'))
+            for consumer in app_config.consumption:
+                self.add_task(CooConsumerTask(task_config=consumer, polling_interval=interval, store='/tmp/prodconsume/consume'))
         except energyweb.config.ConfigurationFileError as e:
             print(f'Error in configuration file: {e}')
         except Exception as e:
@@ -205,8 +207,7 @@ class MyApp(energyweb.dispatcher.App):
 
 
 if __name__ == '__main__':
-    myapp = MyApp()
-    myapp.run()
+    MyApp().run()
 
 """
     def read_production_data(self, task_config: energyweb., last_hash: str, last_state: dict) -> ProductionFileData:

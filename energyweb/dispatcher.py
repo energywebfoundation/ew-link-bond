@@ -34,7 +34,7 @@ class Task:
     def finish(self) -> None:
         """
         Perform steps required after running the main task
-        run exactlt once
+        run exactly once
         """
 
     def run(self, *args):
