@@ -41,10 +41,9 @@ class DiskStorage:
         :param chain_file_name:
         :param path_to_files:
         """
-        self.chain_file = path_to_files + chain_file_name
+        self.chain_file = os.path.join(path_to_files, chain_file_name)
         self.path = path_to_files
-        if not os.path.exists(path_to_files):
-            os.makedirs(path_to_files)
+        os.makedirs(path_to_files, exist_ok=True)
         if not os.path.exists(self.chain_file):
             self.__memory = None
             return
@@ -86,7 +85,7 @@ class DiskStorage:
             sha3 = hashlib.sha1()
             sha3.update(open(self.chain.data.file, 'rb').read())
             base58_digest = base58.b58encode(sha3.digest())
-            return 'Qm' + base58_digest
+            return 'Qm' + base58_digest.decode()
         else:
             return '0x0'
 
@@ -100,7 +99,7 @@ class DiskStorage:
     def _save_file(self, data):
         if not os.path.exists(self.path):
             os.makedirs(self.path)
-        file_name_mask = self.path + '%Y-%m-%d-%H:%M:%S.json'
+        file_name_mask = os.path.join(self.path, '%Y-%m-%d-%H:%M:%S.json')
         file_name = datetime.datetime.now().strftime(file_name_mask)
         with open(file_name, 'w+') as file:
             json.dump(data.to_dict(), file)

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import datetime
+import os
 import time
 import urllib
 import json
@@ -11,8 +12,8 @@ from energyweb.config import CooV1ConsumerConfiguration, CooV1ProducerConfigurat
 
 class CooGeneralTask(energyweb.Logger, energyweb.Task):
 
-    def __init__(self, task_config: energyweb.config.CooV1Configuration, polling_interval: datetime.timedelta,
-                 store: str = None, enable_debug: bool = False):
+    def __init__(self, task_config: energyweb.config.CooV1ConsumerConfiguration, polling_interval: datetime.timedelta,
+                 store: str = '', enable_debug: bool = False):
         """
         :param task_config: Consumer configuration class instance
         :param polling_interval: Time interval between interrupts check
@@ -20,8 +21,7 @@ class CooGeneralTask(energyweb.Logger, energyweb.Task):
         :param enable_debug: Enabling debug creates a log for errors. Needs storage. Please manually delete it.
         """
         self.task_config = task_config
-        self.path_to_files = './origin_logs/'
-        self.chain_file_name = 'chained_logs'
+        self.chain_file_name = 'origin.pkl'
         self.msg_success = 'minted %s watts - block # %s'
         self.msg_error = 'energy_meter: %s - stack: %s'
         energyweb.Logger.__init__(self, log_name=task_config.name, store=store, enable_debug=enable_debug)
@@ -53,15 +53,16 @@ class CooGeneralTask(energyweb.Logger, energyweb.Task):
             # Get the data by accessing the external energy device
             # Storing logs locally
             if self.store:
-                local_storage = energyweb.DiskStorage(path_to_files=self.path_to_files,
+                local_storage = energyweb.DiskStorage(path_to_files=self.store,
                                                       chain_file_name=self.chain_file_name)
-                last_file_hash = local_storage.get_last_hash() if self.store else '0x0'
+                last_file_hash = local_storage.get_last_hash()
                 energy_data = self._transform(local_file_hash=last_file_hash)
-                if energy_data.is_meter_down:
+                if not energy_data.is_meter_down:
                     local_chain_file = local_storage.add_to_chain(data=energy_data)
                     self.console.info('%s created', local_chain_file)
             else:
-                energy_data = self._transform(local_file_hash='0x0')
+                last_chain_hash = self.task_config.smart_contract.last_hash()
+                energy_data = self._transform(local_file_hash=last_chain_hash)
             # Logging to the blockchain
             tx_receipt = self.task_config.smart_contract.mint(energy_data)
             block_number = str(tx_receipt['blockNumber'])
@@ -195,11 +196,11 @@ class MyApp(energyweb.dispatcher.App):
         try:
             app_configuration_file = json.load(open('config.json'))
             app_config = energyweb.config.parse_coo_v1(app_configuration_file)
-            interval = datetime.timedelta(seconds=1)
+            interval = datetime.timedelta(seconds=3)
             for producer in app_config.production:
-                self.add_task(CooProducerTask(task_config=producer, polling_interval=interval, store='/tmp/prodconsume/produce'))
+                self.add_task(CooProducerTask(task_config=producer, polling_interval=interval, store='/tmp/origin/produce'))
             for consumer in app_config.consumption:
-                self.add_task(CooConsumerTask(task_config=consumer, polling_interval=interval, store='/tmp/prodconsume/consume'))
+                self.add_task(CooConsumerTask(task_config=consumer, polling_interval=interval, store='/tmp/origin/consume'))
         except energyweb.config.ConfigurationFileError as e:
             print(f'Error in configuration file: {e}')
         except Exception as e:
@@ -208,48 +209,3 @@ class MyApp(energyweb.dispatcher.App):
 
 if __name__ == '__main__':
     MyApp().run()
-
-"""
-    def read_production_data(self, task_config: energyweb., last_hash: str, last_state: dict) -> ProductionFileData:
-        input_data_dict = {
-            'raw_energy': __fetch_input_data(task_config.energy),
-            'raw_carbon_emitted': __fetch_input_data(task_config.carbon_emission),
-            'produced': None,
-        }
-        input_data = ProductionFileData(**input_data_dict)
-        co2_saved = input_data.raw_carbon_emitted.accumulated_co2 if input_data.raw_carbon_emitted else 0
-        energy = int(input_data.raw_energy.accumulated_power) if input_data.raw_energy else 0
-        calculated_co2 = energy * co2_saved
-        co2_saved = int(calculated_co2 * pow(10, 3))
-        energy = int(energy)
-        produced = {
-            'energy': energy,
-            'is_meter_down': True if input_data.raw_energy is None else False,
-            'previous_hash': last_hash,
-            'co2_saved': co2_saved,
-            'is_co2_down': True if input_data.raw_carbon_emitted is None else False
-        }
-        input_data.produced = ProducedChainData(**produced)
-        return input_data
-
-    def _produce(chain_file, task_config, item) -> bool:
-        try:
-            production_local_chain = dao.DiskStorage(chain_file, PERSISTENCE)
-            last_local_chain_hash = production_local_chain.get_last_hash()
-            last_remote_state = task_config.client.last_state(item.origin)
-            produced_data = dao.read_production_data(item, last_local_chain_hash, last_remote_state)
-            created_file = production_local_chain.add_to_chain(produced_data)
-            tx_receipt = task_config.client.mint(produced_data.produced, item.origin)
-            class_name = item.energy.__class__.__name__
-            data = produced_data.produced
-            block_number = str(tx_receipt['blockNumber'])
-            msg = '[PROD] energy_meter: {} - {} watts - {} kg of Co2 - block: {}'
-            if data.is_meter_down:
-                logger.warning(msg.format(class_name, data.energy, data.co2_saved, block_number))
-            else:
-                logger.info(msg.format(class_name, data.energy, data.co2_saved, block_number))
-            return True
-        except Exception as e:
-            error_log.exception("[BOND][PROD] energy_meter: {} - stack: {}".format(item.energy.__class__.__name__, e))
-            return False
-"""

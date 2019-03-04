@@ -23,7 +23,7 @@ class Logger:
         if store:
             if not os.path.exists(store):
                 os.makedirs(store)
-            file_handler = logging.FileHandler(store + log_name + '.log')
+            file_handler = logging.FileHandler(os.path.join(store, f'{log_name}.log'))
             file_handler.setFormatter(formatter)
             console.addHandler(file_handler)
         console.addHandler(tty_handler)
@@ -33,7 +33,7 @@ class Logger:
             if not store:
                 raise Exception('Needs storage path in store parameter defined.')
             error_log = logging.getLogger(log_name + '.error')
-            error_file_handler = logging.FileHandler(store + log_name + '.error.log')
+            error_file_handler = logging.FileHandler(os.path.join(store, f'{log_name}.error.log'))
             error_file_handler.setFormatter(formatter)
             error_log.addHandler(error_file_handler)
             error_log.setLevel(logging.WARNING)
