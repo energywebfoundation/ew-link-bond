@@ -159,6 +159,7 @@ class OriginProducer(OriginV1):
                     bytes32 _lastSmartMeterReadFileHash
                     )
         """
+        # TODO store with names keys
         receipt = self.call('producer', 'getAssetGeneral', self.asset_id)
         if not receipt:
             raise ConnectionError

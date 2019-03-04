@@ -27,6 +27,13 @@ class BondAPIv1(EnergyDevice):
         self.base_url = base_url
         self.api_url = '{}/{}/{}'.format(base_url, source, device_id)
         self.auth = (user, password)
+        super().__init__(
+            manufacturer='Slock.it',
+            model='Virtual Energy Meter',
+            serial_number='0001000',
+            energy_unit='KILOWATT_HOUR',
+            is_accumulated=False)
+        # TODO get from device metadata from API call
 
     def read_state(self, start=None, end=None) -> EnergyData:
         # raw
@@ -117,10 +124,6 @@ class BondAPIv1TestDevice3(BondAPIv1):
         }
         data = json.loads(raw[url])
         return self._parse_source(str(raw), data)
-
-    def is_accumulated(self):
-        # TODO
-        return False
 
 
 if __name__ == '__main__':

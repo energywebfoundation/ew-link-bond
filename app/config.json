@@ -8,7 +8,7 @@
     "class_parameters": {
      "base_url": "base_url",
      "source": "produced",
-     "device_id": 1
+     "device_id": 0
     }
    },
    "smart-contract": {
@@ -35,7 +35,7 @@
      "device_id": 0
     }
    },
-   "carbonemission": {
+   "carbon-emission": {
     "module": "energyweb.carbonemission",
     "class_name": "WattimeV1",
     "class_parameters": {

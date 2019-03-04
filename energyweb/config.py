@@ -133,10 +133,6 @@ class CooV1ConsumerConfiguration(EnergywebAppConfiguration):
         self.energy_meter = energy_meter
         self.smart_contract = smart_contract
 
-    #def carbon_emission(self):
-        # TODO
-    #    pass
-
 
 class CooV1ProducerConfiguration(CooV1ConsumerConfiguration):
     """
