@@ -96,4 +96,7 @@ class App(EventLoop):
         Call the overwritten configure and run the eventLoop
         """
         self.configure()
+        # python 3.6
+        #loop = asyncio.get_event_loop()
+        #loop.run_until_complete(super().run())
         asyncio.run(super().run())
