@@ -119,6 +119,7 @@ class BondAPIv1TestDevice3(BondAPIv1):
         return self._parse_source(str(raw), data)
 
     def is_accumulated(self):
+        # TODO
         return False
 
 
