@@ -1,8 +1,6 @@
 import datetime
 import inspect
 
-from energyweb.dispatcher import EventLoop
-
 
 class Serializable(object):
     """
