@@ -52,7 +52,7 @@ class BondConfiguration:
         energyweb: 1.0
         info:
           title: App Title
-          description: My very nice energyweb embedded app
+          command: My very nice energyweb embedded app
           version: 1.0 alpha
         task_config:
           debugger: on
