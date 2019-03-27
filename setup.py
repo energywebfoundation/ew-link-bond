@@ -6,13 +6,14 @@ import setuptools
 
 setuptools.setup(
     name="energyweb",
-    version="0.3.9",
+    version="0.4.0",
     author="github.com/cerealkill",
     author_email="paul.depraz@energyweb.org",
     description="Energy utility data interface for blockchain smart contracts",
     long_description="Library designed to support the creation of applications for reading, parsing and writing \
     electrical utility related data to and from the blockchain. \n\
-    Please visit https://github.com/energywebfoundation/ew-link-bond for more.",
+    Please visit [ew-link-bond](https://github.com/energywebfoundation/ew-link-bond) for more.",
+    long_description_content_type="text/markdown",
     url="https://github.com/energywebfoundation/ew-link-bond",
     packages=setuptools.find_packages(exclude=["docs", "tests"]),
     install_requires=['web3>=4.8.0,<5.0.0', 'colorlog>=3.1.4', 'base58>=1.0.3'],
