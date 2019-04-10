@@ -9,13 +9,14 @@ Bond - Your favorite library for logging energy data on the blockchain
 """
 
 import energyweb.config as config
+import energyweb.smart_contract.usn as iotlayer
+import energyweb.smart_contract.origin_v1 as origin
 
 from energyweb.interfaces import Serializable, ExternalData, IntegrationPoint, BlockchainClient
 from energyweb.log import Logger
 from energyweb.dispatcher import App, Task
 from energyweb.carbonemission import CarbonEmissionData
 from energyweb.eds.interfaces import EnergyUnit, EnergyData, EnergyDevice
-from energyweb.smart_contract.origin_v1 import ConsumedEnergy, ProducedEnergy, OriginV1
 from energyweb.smart_contract.interfaces import EVMSmartContractClient
 from energyweb.storage import DiskStorage
 

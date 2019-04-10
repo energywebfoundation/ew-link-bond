@@ -11,6 +11,7 @@ pylint = "*"
 colorlog = "*"
 web3 = "<5.0.0,>=4.8.0"
 base58 = "*"
+requests = "*"
 
 [requires]
 python_version = "3.7"

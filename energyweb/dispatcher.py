@@ -62,7 +62,7 @@ class Task:
             try:
                 await main_loop()
                 while self.run_forever:
-                    await asyncio.ensure_future(main_loop())
+                    await main_loop()
             except Exception as e:
                 self._handle_exception(e)
             finally:
