@@ -9,6 +9,9 @@ Bond - Your favorite library for logging energy data on the blockchain
 """
 
 import energyweb.config as config
+import energyweb.database.dao as dao
+import energyweb.database.memorydao as memorydao
+import energyweb.database.elasticdao as elasticdao
 import energyweb.smart_contract.usn as iotlayer
 import energyweb.smart_contract.origin_v1 as origin
 
