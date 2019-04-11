@@ -32,7 +32,7 @@ class ChainLink:
         return self.last_link
 
 
-class DiskStorage:
+class OnDiskChain:
     """
     Saves a pickle with the data in chain format.
     """
