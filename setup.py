@@ -13,7 +13,7 @@ README = (HERE / "README.md").read_text()
 
 setuptools.setup(
     name="energyweb",
-    version="0.4.2",
+    version="0.4.3",
     author="github.com/cerealkill",
     author_email="paul.depraz@energyweb.org",
     description="Energy utility data interface for blockchain smart contracts",

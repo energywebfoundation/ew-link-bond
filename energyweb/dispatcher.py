@@ -123,6 +123,10 @@ class App:
         """
         try:
             self.loop.run_until_complete(asyncio.gather(*[task.run(*args) for task, args in self.tasks]))
+        except KeyboardInterrupt:
+            self._clean_up()
+            if self.loop.is_running():
+                self.loop.close()
         except Exception as e:
             self._handle_exception(e)
         finally:
