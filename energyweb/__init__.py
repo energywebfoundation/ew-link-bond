@@ -25,5 +25,5 @@ __name__ = 'energyweb'
 __author__ = 'Paul Depraz <github.com/cerealkill>'
 __repository__ = 'github.com/energywebfoundation/ew-link-bond'
 __status__ = "pre-alpha"
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 __date__ = "14 December 2018"
