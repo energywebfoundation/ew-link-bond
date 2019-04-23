@@ -5,7 +5,7 @@
 
 ## Summary
 
-Energyweb if an Application framework designed to empower energy prosumers and utilities to leverage Blockchain and other cutting edge-cryptographic solutions. Just install it as a dependency with `pip3 install energyweb`. Create a python script and create your own **App** and **Tasks** importing classes from `energyweb.dispatcher` module.
+Energyweb is an Application framework designed to empower energy prosumers and utilities to leverage Blockchain and other cutting edge cryptographic solutions. Just install it as a dependency with `pip3 install energyweb`. Create a python script and create your own **App** and **Tasks** importing classes from `energyweb.dispatcher` module.
 
 Further development and contribution is much welcome, please contribute with issues and pull requests. :)
 
@@ -18,7 +18,7 @@ Further development and contribution is much welcome, please contribute with iss
     - Tested on [_Parity_](https://www.parity.io/ethereum/) and [_Geth_](https://github.com/ethereum/go-ethereum/wiki/geth)
 - [EWF's Origin](https://github.com/energywebfoundation/ew-origin) release A smart-contract support for energy consumption and production registry for [REC](https://en.wikipedia.org/wiki/Renewable_Energy_Certificate_(United_States)) generation
 
-#### Suported Energy Data Sources
+#### Supported Energy Data Sources
 
 - [Verbund Eumel v1.0](https://www.verbund.com/de-at/privatkunden/themenwelten/wiki/smart-meter)
 - [Verbund Eumel v2.1.1](https://www.verbund.com/de-at/privatkunden/themenwelten/wiki/smart-meter)
@@ -56,7 +56,7 @@ Further development and contribution is much welcome, please contribute with iss
 
 The application consists of dynamically loading modules from the configuration file. After loading the modules, the main thread will spawn task threads when a trigger event occurs. In case the main thread dies or become a zombie, it must be restarted from an external command. It is the system administrator task to maintain services health, therefore no mitigation technique is applied.
  
-A __task__ can be of any nature, although it is a best practice that it's execution is finite and it's resource usage is predictable. This will avoid _concurrence_ between tasks and possible _deadlocks_.
+A __task__ can be of any nature, although it is a best practice that its execution is finite and its resource usage is predictable. This will avoid _concurrence_ between tasks and possible _deadlocks_.
 
 ### Modules
 
