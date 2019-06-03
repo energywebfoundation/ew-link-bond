@@ -297,7 +297,7 @@ definitions:
         type: integer
         description: EnergyAsset number, for identification when there are multiple devices in the same site with only one api point.
       device:
-        $ref: '#/definitions/EnergyAsset'
+        $ref: '#/definitions/Device'
       measuredEnergy:
         type: array
         items:
