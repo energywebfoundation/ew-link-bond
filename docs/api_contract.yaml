@@ -1,36 +1,40 @@
-# This is an example. Please use it as such. For more info read swagger documentation and wikipedia article on REST protocol https://en.wikipedia.org/wiki/Representational_state_transfer
-# Please mind that the generators for servers and clients can be outdated and are open source contribuitons.
-
-# Don't change swagger: "2.0".
 swagger: '2.0'
 info:
   title: Energy Measurement API
-  description: Company name, project name, purpose of the api creation, date of last update, sometimes code author name.
-  # Always change the version of the API endpoints and contracts, keeping compatibility in the major version. Also keep the previous versions available for retro compatibility.
-  # I.E. Client versions 1.*.* are able to access the /v1/* endpoints without changing any code. Minor versions only fix typos and unpredicted behavior, adding endpoints is possible but not removing previous ones.
-  # When version 2.0.0 is release under /v2/* endpoint, /v1 is kept for keeping version 1.*.* working.
-  version: "2.0.0"
-# the domain of the service, site can be added like api.site_name.your_company.com, keeping site_name.your_company.com for dashboards or any other webapp based on api.site_name.your_company.com.
+  description: 'Company name, project name, purpose of the api creation, date of last update, sometimes code author name.'
+  version: 2.0.0
 host: api.yourcompany.com
-# array of all schemes that your API supports
-# note: DO NOT use http with authentication enabled.
-# Either use http only with no authentication OR https + auth.
 schemes:
   - https
-# will be prefixed to all paths
 basePath: /v2
 produces:
   - application/json
 securityDefinitions:
   basicAuth:
     type: basic
-# To apply Basic auth to the whole API:
 security:
   - basicAuth: []
 paths:
+  '/consumed':
+    post:
+      summary: Create a new consuming asset
+      description: ''
+      tags:
+        - Energy Consumer
+      parameters:
+         - $ref: '#/definitions/Device'
+         - $ref: '#/definitions/MeasuredEnergy'
+      responses:
+        '200':
+          $ref: '#/definitions/Status'
+        '400':
+          $ref: '#/responses/BadRequest'
+        '401':
+          $ref: '#/responses/Unauthorized'
+      
   '/consumed/{deviceId}':
     get:
-      summary: Consumed energy
+      summary: Retrieve consumed energy
       description: Energy consumed measured in Mega Watts during a certain period.
       tags:
         - Energy Consumer
@@ -70,65 +74,101 @@ paths:
           type: integer
       responses:
         '200':
+          $ref: '#/definitions/Status'
+        '400':
+          $ref: '#/responses/BadRequest'
+        '401':
+          $ref: '#/responses/Unauthorized'
+        '404':
+          $ref: '#/responses/NotFound'
+    put:
+      summary: Publish consumed energy
+      tags:
+        - Energy Consumer
+      parameters:
+        - name: deviceId
+          in: path
+          description: EnergyAsset identification number
+          required: true
+          type: integer
+          format: int32
+        - name: energy
+          in: query
+          type: number
+          description: Registered in Mega Watts
+        - name: measurement_time
+          in: query
+          type: string
+          format: "date-time"
+          description: 'Time of measurement in the device, in RFC 3339 format. ie. 2018-03-14T17:12:20+00:00'
+      responses:
+        '200':
+          $ref: '#/definitions/Status'
+        '400':
+          $ref: '#/responses/BadRequest'
+        '401':
+          $ref: '#/responses/Unauthorized'
+        '404':
+          $ref: '#/responses/NotFound'
+    delete:
+      summary: Remove published energy
+      tags:
+        - Energy Consumer
+      parameters:
+        - name: deviceId
+          in: path
+          description: EnergyAsset identification number
+          required: true
+          type: integer
+          format: int32
+        - name: start
+          in: query
+          description: 'Date in RFC 3339 format. ie. 2018-03-14T17:11:19+00:00'
+          required: true
+          default: last_hour
+          type: string
+          format: "date-time"
+        - name: end
+          in: query
+          description: 'Date in RFC 3339 format. ie. 2018-03-14T17:12:20+00:00'
+          required: true
+          default: now
+          type: string
+          format: "date-time"
+      responses:
+        '200':
+          $ref: '#/definitions/Status'
+        '400':
+          $ref: '#/responses/BadRequest'
+        '401':
+          $ref: '#/responses/Unauthorized'
+        '404':
+          $ref: '#/responses/NotFound'
+
+  '/produced':
+    post:
+      summary: Create a new producing asset
+      description: ''
+      tags:
+        - Energy Producer
+      parameters:
+         - $ref: '#/definitions/Device'
+         - $ref: '#/definitions/MeasuredEnergy'
+      responses:
+        '200':
           description: An array of measured energy
           schema:
-            type: object
+            type: array
             items:
               $ref: '#/definitions/MeasuredEnergyOnDevice'
         '400':
           $ref: '#/responses/BadRequest'
         '401':
           $ref: '#/responses/Unauthorized'
-        '501':
-          $ref: '#/responses/NotImplemented'
-    post:
-      tags:
-        - Not Implemented
-      parameters:
-        - name: deviceId
-          in: path
-          description: EnergyAsset identification number
-          required: true
-          type: integer
-          format: int32
-      responses:
-        '405':
-          $ref: '#/responses/MethodNotAllowed'
-        '501':
-          $ref: '#/responses/NotImplemented'
-    put:
-      tags:
-        - Not Implemented
-      parameters:
-        - name: deviceId
-          in: path
-          description: EnergyAsset identification number
-          required: true
-          type: integer
-          format: int32
-      responses:
-        '405':
-          $ref: '#/responses/MethodNotAllowed'
-        '501':
-          $ref: '#/responses/NotImplemented'
-    delete:
-      tags:
-        - Not Implemented
-      parameters:
-        - name: deviceId
-          in: path
-          description: EnergyAsset identification number
-          required: true
-          type: integer
-          format: int32
-      responses:
-        '405':
-          $ref: '#/responses/MethodNotAllowed'
-        '501':
-          $ref: '#/responses/NotImplemented'
+
   '/produced/{deviceId}':
     get:
-      summary: Produced energy
+      summary: Retrieve produced energy
       description: Energy produced measured in Mega Watts during a certain period.
       tags:
         - Energy Producer
@@ -179,24 +219,10 @@ paths:
           $ref: '#/responses/Unauthorized'
         '501':
           $ref: '#/responses/NotImplemented'
-    post:
-      tags:
-        - Not Implemented
-      parameters:
-        - name: deviceId
-          in: path
-          description: EnergyAsset identification number
-          required: true
-          type: integer
-          format: int32
-      responses:
-        '405':
-          $ref: '#/responses/MethodNotAllowed'
-        '501':
-          $ref: '#/responses/NotImplemented'
     put:
+      summary: Publish consumed energy
       tags:
-        - Not Implemented
+        - Energy Producer
       parameters:
         - name: deviceId
           in: path
@@ -204,14 +230,28 @@ paths:
           required: true
           type: integer
           format: int32
+        - name: energy
+          in: query
+          type: number
+          description: Registered in Mega Watts
+        - name: measurement_time
+          in: query
+          type: string
+          format: "date-time"
+          description: 'Time of measurement in the device, in RFC 3339 format. ie. 2018-03-14T17:12:20+00:00'
       responses:
-        '405':
-          $ref: '#/responses/MethodNotAllowed'
-        '501':
-          $ref: '#/responses/NotImplemented'
+        '200':
+          $ref: '#/definitions/Status'
+        '400':
+          $ref: '#/responses/BadRequest'
+        '401':
+          $ref: '#/responses/Unauthorized'
+        '404':
+          $ref: '#/responses/NotFound'
     delete:
+      summary: Remove published energy
       tags:
-        - Not Implemented
+        - Energy Producer
       parameters:
         - name: deviceId
           in: path
@@ -219,11 +259,29 @@ paths:
           required: true
           type: integer
           format: int32
+        - name: start
+          in: query
+          description: 'Date in RFC 3339 format. ie. 2018-03-14T17:11:19+00:00'
+          required: true
+          default: last_hour
+          type: string
+          format: "date-time"
+        - name: end
+          in: query
+          description: 'Date in RFC 3339 format. ie. 2018-03-14T17:12:20+00:00'
+          required: true
+          default: now
+          type: string
+          format: "date-time"
       responses:
-        '405':
-          $ref: '#/responses/MethodNotAllowed'
-        '501':
-          $ref: '#/responses/NotImplemented'
+        '200':
+          $ref: '#/definitions/Status'
+        '400':
+          $ref: '#/responses/BadRequest'
+        '401':
+          $ref: '#/responses/Unauthorized'
+        '404':
+          $ref: '#/responses/NotFound'
 responses:
   Unauthorized:
     description: Authentication information is missing or invalid
@@ -239,6 +297,8 @@ responses:
     description: Endpoint not implemented
   BadRequest:
     description: Limit must be non-zero positive integer | Dates must be in RFC 3339 format | Start date must be higher than end date
+  NotFound:
+    description: The asset with id has not been found on the server
 definitions:
   Device:
     description: Energy measuring device
@@ -297,3 +357,13 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/MeasuredEnergy'
+  Status:
+    type: object
+    required: [error]
+    properties:
+      error:
+        type: string
+        description: Name of error in case an error occured, empty otherwise
+      message:
+        type: string
+        description: Additional status information like error message in case of error
