@@ -41,7 +41,7 @@ class Example:
         args = [asset_id]
         
         #smartMeterRead = getattr(contract_instance.functions, method_name)(*args).call()
-        assetLocation = contract_instance.functions.getLastSmartMeterReadWh(0).call()
+        smartMeterRead = contract_instance.functions.getLastSmartMeterReadWh(0).call()
 
         # with correct method name -> Error: VM Exception while processing transaction: revert ganache-core.node.cli.js:10
 
