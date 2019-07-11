@@ -16,7 +16,7 @@ class Example:
 
         # npm start:
         # info: Asset Contract Deployed: 0x6389D7786F7B2cd7e951d417CAD7e5e04295ae48
-        contract_address = "0xb19B5d529F8af11f5b91d4FC9B33106844F210a0"
+        contract_address = "0x6389D7786F7B2cd7e951d417CAD7e5e04295ae48"
 
         with open('AssetContractLookupInterface.json') as contract_json:
             contract = json.load(contract_json)
@@ -28,12 +28,11 @@ class Example:
             address=self.w3.toChecksumAddress(contract_address))
 
         assetProducingRegistryLogic = contract_instance.functions.assetProducingRegistry().call()
-        print(assetProducingRegistryLogic)
-        # works: 0x944655d2D4C6C68dBb2B1576A89fAD5e36e714dA
+        print(assetProducingRegistryLogic) # 0xA82E267dDb7417B1Ef2f88378bAE35dA5fF33647
 
         # TODO: get assetProducingDB address from assetProducingRegistryLogic
 
-        assetProducingDB = "0xcab91029732e642067F9095dbb395937d67667F7"
+        assetProducingDB = "0x4F804aE27A225e1052BCEa4ecded8b37E8b08218"
 
         with open('AssetProducingDB.json') as contract_json:
             contract = json.load(contract_json)
@@ -45,8 +44,15 @@ class Example:
             address=self.w3.toChecksumAddress(assetProducingDB))
 
 
-        wallet_add = "0x343854a430653571b4de6bf2b8c475f828036c30"
-        wallet_pwd = "12c5c7473dbdb92a524a93baa14ded529fe29acef8d269a3901c14a15e2b0f98"
+        producing_asset_address = "0x343854a430653571b4de6bf2b8c475f828036c30" # from repo ptt-ew-utils-demo config/demo-config.json:75
+        producing_asset_pk      =  "12c5c7473dbdb92a524a93baa14ded529fe29acef8d269a3901c14a15e2b0f98"
+
+        owner_address           = "0x71c31ff1faa17b1cb5189fd845e0cca650d215d3" # demo-config.json:77
+        owner_pk                = "bfb423a193614c6712efd02951289192c20d70b3fc8a8b7cdee73603fcead486"
+
+        wallet_add = producing_asset_address # select producing assset
+        wallet_pwd = producing_asset_pk
+
         private_key = bytearray.fromhex(wallet_pwd)
         nonce = self.w3.eth.getTransactionCount(account=self.w3.toChecksumAddress(wallet_add))
         transaction = {
@@ -56,24 +62,14 @@ class Example:
             'nonce': nonce,
         }
 
-        method_name = "setLastSmartMeterReadWh"
-
-        tx = contract_instance.functions.setLastSmartMeterReadWh(0, 100000).buildTransaction(transaction)
+        tx = contract_instance.functions.setLastSmartMeterReadWh(0, 18060000 + 7320000).buildTransaction(transaction)
 
         print(tx)
 
         signed_txn = self.w3.eth.account.signTransaction(tx, private_key=private_key)
 
-        tx_hash = self.w3.eth.sendRawTransaction(signed_txn.rawTransaction)
+        tx_hash = self.w3.eth.sendRawTransaction(signed_txn.rawTransaction) # Error: msg.sender is not owner
 
-
-    def getContractMethod(self, method_name):
-        for method in self.contract['abi']:
-            try:
-                if method['name'] == method_name:
-                    return method
-            except KeyError:
-                continue
 
 def main():
     e = Example()
