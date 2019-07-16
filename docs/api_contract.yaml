@@ -10,6 +10,7 @@ servers:
     description: replace with server endpoint
 security:
   - basicAuth: []
+  - appID: []
   
 paths:
   /asset:
@@ -21,7 +22,7 @@ paths:
         - in: query
           name: role
           required: true
-          description: Whether this assset is a producer, consumer or both (like a battery)
+          description: Whether this assset is a producer or consumer
           schema:
             $ref: '#/components/schemas/AssetRole'
         - in: query
@@ -45,7 +46,7 @@ paths:
           schema:
             type: number
         - in: query
-          name: energyUnity
+          name: energyUnit
           required: true
           schema:
             $ref: '#/components/schemas/EnergyUnit'
@@ -95,6 +96,7 @@ paths:
       tags: 
         - Asset
       summary: Get asset information by id
+      security: [] # No authentication
       responses:
         200:
           description: Success
@@ -193,12 +195,10 @@ components:
   schemas:
 
     AssetRole:
-      type: array
-      items:
-        type: string
-        enum:
-          - producer
-          - consumer
+      type: string
+      enum:
+        - producer
+        - consumer
           
     EnergyUnit:
       type: string
@@ -228,7 +228,7 @@ components:
           type: number
         longitude:
           type: number
-        energy_unity:
+        energy_unit:
           $ref: '#/components/schemas/EnergyUnit'
         is_accumulated:
           type: boolean
@@ -255,3 +255,13 @@ components:
         message:
           type: string
           description: Additional error information
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+
+    appID:
+      type: apiKey
+      in: header
+      name: X-API-Key
