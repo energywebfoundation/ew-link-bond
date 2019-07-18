@@ -1,8 +1,7 @@
 openapi: 3.0.1
 info:
   title: Energy Measurement API
-  description: >-
-    Company name, project name, purpose of the api creation, date of last
+  description: Company name, project name, purpose of the api creation, date of last
     update, sometimes code author name.
   version: "3-oas3"
 servers: 
@@ -92,7 +91,6 @@ paths:
           type: integer
         required: true
     get:
-      operationId: getAsset
       tags: 
         - Asset
       summary: Get asset information by id
@@ -149,15 +147,6 @@ paths:
         - Energy
       summary: Get energy measurements of asset
       parameters:
-      - name: role
-        in: query
-        description: Role of energy asset for which the measurement is returned
-        required: true
-        schema:
-          type: string
-          enum:
-            - producer
-            - consumer
       - name: timeStart
         in: query
         description: Date in RFC 3339 format. ie. 2018-03-14T17:11:19+00:00
@@ -260,8 +249,10 @@ components:
     basicAuth:
       type: http
       scheme: basic
+      x-basicInfoFunc: api.authorization.check_basicAuth
 
     appID:
       type: apiKey
       in: header
       name: X-API-Key
+      x-apikeyInfoFunc: api.authorization.check_appID
