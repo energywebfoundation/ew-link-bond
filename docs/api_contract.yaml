@@ -3,14 +3,14 @@ info:
   title: Energy Measurement API
   description: Company name, project name, purpose of the api creation, date of last
     update, sometimes code author name.
-  version: "3-oas3"
+  version: "3"
 servers: 
   - url: https://api.yourcompany.com/v3
     description: replace with server endpoint
 security:
   - basicAuth: []
   - appID: []
-  
+
 paths:
   /asset:
     post:
@@ -47,11 +47,13 @@ paths:
         - in: query
           name: energyUnit
           required: true
+          description: Warning Cannot be changed easily using PATCH
           schema:
             $ref: '#/components/schemas/EnergyUnit'
         - in: query
           name: isAccumulated
           required: true
+          description: Whether this assset is reporting total measurement since beginning (true) or since previous measurement (false)
           schema:
             type: boolean
       responses:
@@ -102,6 +104,38 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Asset'
+    patch:
+      tags:
+        - Asset
+      summary: Update asset information by id
+      parameters:
+        - in: query
+          name: manufacturer
+          schema:
+            type: string
+        - in: query
+          name: model
+          schema:
+            type: string
+        - in: query
+          name: serialNumber
+          schema:
+            type: string
+        - in: query
+          name: latitude
+          schema:
+            type: number
+        - in: query
+          name: longitude
+          schema:
+            type: number
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
     delete:
       tags:
         - Asset
@@ -129,7 +163,7 @@ paths:
           schema:
             type: number
         - in: query
-          name: measurement_time
+          name: measurementTime
           description: Time of measurement in the device, in RFC 3339 format. ie. 2018-03-14T17:12:20+00:00
           required: true
           schema:
@@ -143,7 +177,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Energy'
     get:
-      tags: 
+      tags:
         - Energy
       summary: Get energy measurements of asset
       parameters:
@@ -161,9 +195,16 @@ paths:
         schema:
           type: string
           format: date-time
+      - name: accumulated
+        in: query
+        description: Set to True to get one accumulated measurement for the time frame. Note when the assets reports accumulated data, this is equal to the last reading withing the time frame and timeStart does not have an effect.
+        required: false
+        schema:
+          type: boolean
+          default: false
       - name: limit
         in: query
-        description: How many items to return at one time (max 10)
+        description: How many items to return at one time. -1 for no limit, TODO add pagination
         required: false
         schema:
           type: integer
@@ -229,7 +270,7 @@ components:
         energy:
           type: number
           description: Registered in Mega Watts
-        measurement_time:
+        measurementTime:
           type: string
           description: Time of measurement in the device, in RFC 3339 format. ie. 2018-03-14T17:12:20+00:00
           format: date-time
@@ -249,10 +290,10 @@ components:
     basicAuth:
       type: http
       scheme: basic
-      x-basicInfoFunc: api.authorization.check_basicAuth
+      x-basicInfoFunc: api.controller.authorization.check_basicAuth
 
     appID:
       type: apiKey
       in: header
       name: X-API-Key
-      x-apikeyInfoFunc: api.authorization.check_appID
+      x-apikeyInfoFunc: api.controller.authorization.check_appID
