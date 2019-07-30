@@ -69,21 +69,13 @@ paths:
               parameters:
                 assetID: '$response.body#/id'
         400:
-          description: 'Bad request: All required fields need to be set. | energyUnit needs to be a valid choice.'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         401:
-          description: 'Unauthorized: Check authorisation'
+          $ref: '#/components/responses/Unauthorized'
         500:
-          description: 'Internal server error: Check error message for additional details.'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalServerError'
         501:
-          description: 'Not Implemented: The server does not have this message implemented.'
+          $ref: '#/components/responses/NotImplemented'
                 
   /asset/{assetID}:
     parameters:
@@ -104,6 +96,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Asset'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+        501:
+          $ref: '#/components/responses/NotImplemented'
     patch:
       tags:
         - Asset
@@ -136,13 +134,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Asset'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+        501:
+          $ref: '#/components/responses/NotImplemented'
     delete:
       tags:
         - Asset
-      summary: Delete an asset and it's metering data
+      summary: Delete an asset (and it's metering data)
       responses:
         200:
           description: Success
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+        501:
+          $ref: '#/components/responses/NotImplemented'
                   
   /asset/{assetID}/energy:
     parameters:
@@ -176,6 +186,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Energy'
+        400:
+          $ref: '#/components/responses/BadRequestEnergy'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+        501:
+          $ref: '#/components/responses/NotImplemented'
     get:
       tags:
         - Energy
@@ -220,6 +238,14 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Energy'
+        400:
+          $ref: '#/components/responses/BadRequestEnergy'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+        501:
+          $ref: '#/components/responses/NotImplemented'
                 
 components:
   schemas:
@@ -285,6 +311,40 @@ components:
         message:
           type: string
           description: Additional error information
+
+  responses:
+    Unauthorized:
+      description: 'Unauthorized: Check authorisation'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalServerError:
+      description: 'Internal Server Error: Check error message for additional details.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotImplemented:
+      description: 'Not Implemented: The server does not have this message implemented.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: 'Bad Request: All required fields need to be set. | energyUnit needs to be a valid choice.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequestEnergy:
+      description: 'Bad Request: All required fields need to be set. | time needs to be valid dateTime string'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: 'Not Found: Asset with this id doesn`t exist'
 
   securitySchemes:
     basicAuth:
