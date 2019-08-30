@@ -27,6 +27,13 @@ class BondAPIv1(EnergyDevice):
         self.base_url = base_url
         self.api_url = '{}/{}/{}'.format(base_url, source, device_id)
         self.auth = (user, password)
+        super().__init__(
+            manufacturer='Slock.it',
+            model='Virtual Energy Meter',
+            serial_number='0001000',
+            energy_unit='KILOWATT_HOUR',
+            is_accumulated=False)
+        # TODO get from device metadata from API call
 
     def read_state(self, start=None, end=None) -> EnergyData:
         # raw
@@ -45,7 +52,7 @@ class BondAPIv1(EnergyDevice):
         #  measurement epoch
         measurement_time = datetime.datetime.strptime(measurement_list[-1]['measurement_time'], "%Y-%m-%dT%H:%M:%S%z")
         measurement_epoch = calendar.timegm(measurement_time.timetuple())
-        return EnergyData(asset=device, access_epoch=access_epoch, raw=raw, energy=energy,
+        return EnergyData(device=device, access_epoch=access_epoch, raw=raw, energy=energy,
                           measurement_epoch=measurement_epoch)
 
     def write_state(self, *args, **kwargs) -> EnergyData:

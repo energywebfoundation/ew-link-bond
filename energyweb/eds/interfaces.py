@@ -19,16 +19,16 @@ class EnergyData(ExternalData):
     Standard for collected energy and power data, to be transformed into mintable data.
     """
 
-    def __init__(self, asset, access_epoch, raw, energy, measurement_epoch):
+    def __init__(self, device, access_epoch, raw, energy, measurement_epoch):
         """
         Minimum set of data for power measurement logging.
-        :param asset: Metadata about the measurement device. EnergyDevice
+        :param device: Metadata about the measurement device. EnergyDevice
         :param access_epoch: Time the external API was accessed
         :param raw: Raw data collected
         :param energy: Measured energy at the source converted to watt-hours
         :param measurement_epoch: Time of measurement at the source
         """
-        self.asset = asset
+        self.device = device
         self.measurement_epoch = measurement_epoch
         self.energy = energy
         ExternalData.__init__(self, access_epoch, raw)

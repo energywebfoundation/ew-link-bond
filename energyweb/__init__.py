@@ -8,19 +8,24 @@
 Bond - Your favorite library for logging energy data on the blockchain
 """
 
-from energyweb.interfaces import App, ExternalData, BlockchainClient
+import energyweb.config as config
+import energyweb.database.dao as dao
+import energyweb.smart_contract.usn.rent_v1 as iotlayer
+import energyweb.smart_contract.origin_v1 as origin
+
+from energyweb.interfaces import Serializable, ExternalData, IntegrationPoint, BlockchainClient
 from energyweb.log import Logger
-from energyweb.dispatcher import EventLoop, Task, LifeCycle
+from energyweb.dispatcher import App, Task
 from energyweb.carbonemission import CarbonEmissionData
 from energyweb.eds.interfaces import EnergyUnit, EnergyData, EnergyDevice
 from energyweb.smart_contract.interfaces import EVMSmartContractClient
+from energyweb.storage import OnDiskChain
+from energyweb.database.memorydao import MemoryDAO, MemoryDAOFactory
 
 
 __name__ = 'energyweb'
 __author__ = 'Paul Depraz <github.com/cerealkill>'
 __repository__ = 'github.com/energywebfoundation/ew-link-bond'
 __status__ = "pre-alpha"
-__version__ = "0.3.7"
-__date__ = "14 December 2018"
-
-modules = {'Eumelv1': {'energyweb.eds', 'Eumelv1'}}
+__version__ = "0.4.5"
+__date__ = "11 April 2019"

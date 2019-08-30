@@ -28,7 +28,7 @@ class GreenEnergy(EnergyData, CarbonEmissionData):
         if not self.carbon_emission:
             return 0
         accumulated_energy = self.energy.energy
-        if not self.energy.asset.is_accumulated:
+        if not self.energy.device.is_accumulated:
             accumulated_energy += energy_offset
         co2_saved = self.carbon_emission.accumulated_co2
         calculated_co2 = accumulated_energy * co2_saved
@@ -178,16 +178,12 @@ class EVMSmartContractClient(BlockchainClient):
     def create_event_trigger(self, contract_name: str, event_name: str, block_count: int = 1000) -> dict:
         """
         Todo: Fix this to get the blocks and check for new events, demands memory or persistence
-        Create Filter on the client, the client must have the option enabled or it might fail.
         :param contract_name: Contract key as in the contracts list used to instantiate this class.
         :param event_name: Like written in the abi
         :param block_count: Number of blocks prior to the latest to start filtering from
         :return: Filter
         """
-        usn_filter = self.create_event_filter(contract_name=contract_name, event_name=event_name, block_count=block_count)
-        event_logs = usn_filter.get_all_entries()
-        # sessionId = Web3.toHex(event_logs[-1]['transactionHash'])
-        return event_logs
+        raise NotImplemented
 
     def mint(self, energy: EnergyData) -> dict:
         """
